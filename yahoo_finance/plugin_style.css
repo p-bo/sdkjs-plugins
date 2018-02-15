@@ -18,6 +18,7 @@ html, body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   height: 22px;
   cursor: pointer;
+  width: 60px;
 }
 .input-symbol {
   outline-color: #7d858c;
@@ -35,4 +36,26 @@ html, body {
 .input-field {
   display: flex;
   align-content: center;
+}
+.data_div{
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 60px);
+  background: #fff;
+  cursor: pointer;
+}
+.label_search{
+  cursor: pointer;
+  font-size: 11px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.div_name{
+  display: flex;
+  flex-flow: column;
+}
+.div_type{
+  display: flex
+}
+.mouseover{
+  background: rgba(200, 200, 200, 0.5);
 }

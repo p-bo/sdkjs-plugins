@@ -11,7 +11,6 @@
 	
 	var inp_search,					//elemet input
 		btn_search,					//elemet button
-		pre_data,					//pre data for request
 		companies ={				//obj companies
 			arr_symbols: [],		//array symbols
 			arr_names: [],			//array names
@@ -21,21 +20,25 @@
 	window.Asc.plugin.init = function(text){	
 		inp_search = document.getElementById("inp_search");
 		btn_search = document.getElementById("btn_search");
-		// inp_search.onkeyup = function(){
-		// 	get_data(inp_search.innerText);
-		// }
+		inp_search.onblur = function(){
+			$('div.data_div').remove();
+		};
+		
 	};
 	
 	$(document).ready(function(){
 		$('#inp_search').keyup(function(){
-			if ((pre_data != inp_search.value) && (inp_search.value != ""))
+			if (inp_search.value != ""){
 				get_companies(inp_search.value);
+			}else{
+				$('div.data_div').remove();
+			}
 		});
 	});
-	
+
 	function get_companies(req_text){
-		pre_data = req_text;
-		req_text = decodeURIComponent(req_text.replace(/ /g, '%20')).trim()
+		$('div.data_div').remove();
+		req_text = decodeURIComponent(req_text.replace(/ /g, '%20')).trim();
 		$.ajax({
 			type: 'GET',
 			async: true,
@@ -47,7 +50,89 @@
 				companies.arr_names = get_params(data,"\"name","\",");
 				companies.arr_type = get_params(data,"\"typeDisp","\\\"}");
 				companies.arr_disp = get_params(data,"\"exchDisp","\",");
-				console.log(companies);
+				create_variants(companies);
+			
+			},
+			error: function(err){
+				alert(err);
+				//handle an error
+			}
+		});
+	};
+
+	function create_variants(companies)
+	{
+		$('div.data_div').remove();
+		for (var i=companies.arr_names.length-1; i>=0;i--)
+		{
+			$('<div>', {
+				id: 'data_div'+i,
+				class: 'data_div',
+				on: {
+					mousedown: function(event){
+						$('div.data_div').remove();
+						get_data(this.firstChild.firstChild.innerText);
+					},
+					mouseover: function(event){
+						$(this).addClass('mouseover');
+					},
+					mouseout: function(event){
+						$(this).removeClass('mouseover');
+					}
+				},
+				append:	$('<div>',
+						{
+							class: 'div_name',
+							append:
+							$('<label>',
+							{
+								text: companies.arr_symbols[i],
+								id: 'label1' + i,
+								class: 'label_search',
+								css: {
+									fontWeight: "bold",
+									color: "#1c7dcc"
+								}
+							})
+							.add($('<label>', 
+							{ 
+								text: companies.arr_names[i],
+								id: 'label2' + i,
+								class: 'label_search'
+							}))
+						})
+						.add($('<div>',
+						{
+							class: 'div_type',
+							append:
+							$('<label>',
+							{
+								text: companies.arr_type[i] +' -',
+								id: 'label3' + i,
+								class: 'label_search'
+							})
+							.add($('<label>', 
+							{ 
+								text: ' ' + companies.arr_disp[i],
+								id: 'label4' + i,
+								class: 'label_search'
+							}))
+						}))
+			})
+			.insertAfter('#input_field');
+		}
+	};
+	
+
+	function get_data(req_text){
+		req_text = decodeURIComponent(req_text.replace(/ /g, '%20')).trim()
+		$.ajax({
+			type: 'GET',
+			async: true,
+			url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+ req_text +"%3Fformatted%3Dtrue%26lang%3Den-US%26region%3DUS%26modules%3Dprice%252CsummaryDetail%26corsDomain%3Dfinance.yahoo.com'%20&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+			success: function(data){
+				console.log(data);
+				// handle response
 			},
 			error: function(err){
 				alert(err);
@@ -69,7 +154,6 @@
 		}
 		return arr;
 	};
-
 
 	window.Asc.plugin.button = function(id)
 	{
