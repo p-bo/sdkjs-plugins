@@ -59,3 +59,8 @@ html, body {
 .mouseover{
   background: rgba(200, 200, 200, 0.5);
 }
+.not_found{
+  font-size: 1em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+}
