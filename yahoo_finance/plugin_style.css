@@ -44,17 +44,23 @@ html, body {
   background: #fff;
   cursor: pointer;
 }
-.label_search{
+label{
   cursor: pointer;
   font-size: 11px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+.label_search{
+  width: -moz-min-content;
+  width: min-content;
+}
 .div_name{
   display: flex;
   flex-flow: column;
+  max-width: 50%;
 }
 .div_type{
-  display: flex
+  display: flex;
+  max-width: 50%;
 }
 .mouseover{
   background: rgba(200, 200, 200, 0.5);

@@ -9,24 +9,24 @@
 		return false;
 	};
 	
-	var inp_search,					//elemet input
-		btn_search,					//elemet button
-		timer,						//timer
-		predata,					//previous data request
-		companies ={				//obj companies
-			_symbols: [],			//array symbols
-			_names: [],				//array names
-			_type: [],				//array type
-			_disp: []},				//arry disp
-		compani_data ={},			//obj companies data
-		_data_req =["regularMarketPrice","regularMarketPreviousClose","regularMarketOpen","bid","bidSize","ask","askSize","dayLow","dayHigh","fiftyTwoWeekLow","fiftyTwoWeekHigh","regularMarketVolume","averageVolume","marketCap","payoutRatio","trailingPE","dividendRate"];	
+	var inp_search,							//elemet input
+		btn_search,							//elemet button
+		timer,								//timer
+		predata,							//previous data request
+		companies ={						//obj companies
+			_symbols: [],					//array symbols
+			_names: [],						//array names
+			_type: [],						//array type
+			_disp: []},						//arry disp
+		compani_data ={regularMarketPrice:"N/A",targetMeanPrice:"N/A",epsTrailingTwelveMonths:"N/A",regularMarketChangePercent:"N/A",regularMarketPreviousClose:"N/A",regularMarketOpen:"N/A",bid:"N/A",bidSize:"N/A",ask:"N/A",askSize:"N/A",regularMarketDayLow:"N/A",regularMarketDayHigh:"N/A",fiftyTwoWeekLow:"N/A",fiftyTwoWeekHigh:"N/A",regularMarketVolume:"N/A",averageDailyVolume3Month:"N/A",marketCap:"N/A",beta:"N/A",trailingPE:"N/A",dividendRate:"N/A",dividendYield:"N/A"},					//obj companies data
+		_data_req =["regularMarketTime\\\":","currency\\\":\\\"","symbol\\\":\\\"","shortName\\\":\\\"","exchangeName\\\":\\\"","regularMarketChange","epsTrailingTwelveMonths","targetMeanPrice"];
 	
 		window.Asc.plugin.init = function(text){	
 		inp_search = document.getElementById("inp_search");
 		btn_search = document.getElementById("btn_search");
 		inp_search.onblur = function(){
-			//$('div.data_div').remove();
-			//$('div.data_name').remove();
+			$('div.data_div').remove();
+			$('div.data_name').remove();
 		};
 		btn_search.onclick = function(){
 			$('div.data_div').remove();
@@ -112,7 +112,6 @@
 							{
 								text: companies._symbols[i],
 								id: 'label1' + i,
-								class: 'label_search',
 								css: {
 									fontWeight: "bold",
 									color: "#1c7dcc"
@@ -122,7 +121,6 @@
 							{ 
 								text: companies._names[i],
 								id: 'label2' + i,
-								class: 'label_search'
 							}))
 						})
 						.add($('<div>',
@@ -133,7 +131,6 @@
 							{
 								text: companies._type[i] +' -',
 								id: 'label3' + i,
-								class: 'label_search'
 							})
 							.add($('<label>', 
 							{ 
@@ -173,13 +170,55 @@
 				if(data.indexOf("result\\\":[]") !=-1)
 					return;
 				data = data.substring(data.indexOf("result")+5);
-				for(var i = 0; i<_data_req.length;i++)
+				for (var i in compani_data)
+					if(data.indexOf(i) !== -1)
+						get_compani_data(data,i,1);
+				for(var i = 0; i<5;i++)
 					if(data.indexOf(_data_req[i]) !== -1)
-						get_compani_data(data,_data_req[i]);
-				console.log(compani_data);
+						get_compani_data(data,_data_req[i],2);
+				get_compani_data(data,_data_req[5],3);
+				//console.log(compani_data);
 			},
 			error: function(err){
 				alert("err data req");
+				//handle an error
+			}
+		});
+		$.ajax({
+			type: 'GET',
+			async: true,
+			url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery1.finance.yahoo.com%2Fv7%2Ffinance%2Fquote%3Fsymbols%3D"+req_text+"'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+			success: function(data){
+				data = JSON.stringify(data.query.results.row);
+				if(data.indexOf("result\\\":[]") !=-1)
+					return;
+				data = data.substring(data.indexOf("result")+5);
+				if(data.indexOf(_data_req[6]) !== -1)
+					get_compani_data(data,_data_req[6],4);
+				//console.log(compani_data);
+			},
+			error: function(err){
+				create_not_found();
+				//alert("err data req");
+				//handle an error
+			}
+		});
+		$.ajax({
+			type: 'GET',
+			async: true,
+			url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+req_text+"%3Fmodules%3DsummaryProfile%252CfinancialData%252CrecommendationTrend%252CupgradeDowngradeHistory%252Cearnings%252CdefaultKeyStatistics%252CcalendarEvents%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+			success: function(data){
+				data = JSON.stringify(data.query.results.row);
+				if(data.indexOf("result\\\":null,") !=-1)
+					return;
+				data = data.substring(data.indexOf("result")+5);
+				if(data.indexOf(_data_req[7]) !== -1)
+					get_compani_data(data,_data_req[7],5);
+				console.log(compani_data);
+			},
+			error: function(err){
+				create_not_found();
+				//alert("err data req");
 				//handle an error
 			}
 		});
@@ -199,17 +238,47 @@
 		return arr;
 	};
 
-	function get_compani_data(data,par_1){
-		var foundPos_1 = data.indexOf(par_1, 0),
+	function get_compani_data(data,par_1,flag){
+		var temp,
+			foundPos_1 = data.indexOf(par_1, 0),
 			foundPos_2 = data.indexOf(",", foundPos_1);
-		var temp = data.substring(foundPos_1,foundPos_2);
-		if(temp.indexOf("{}") == -1)
-		{
-			compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
-		}else{
-			compani_data[par_1] = "N/A";
+			temp = data.substring(foundPos_1,foundPos_2);
+		switch(flag){
+			case 1:
+				if(temp.indexOf("{}") == -1)
+					compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
+			break;
+			case 2:
+				temp = data.substring(foundPos_1-3,foundPos_2);
+				if(temp.indexOf("\":0") == -1)
+				{
+					compani_data[par_1] = data.substring(foundPos_1+par_1.length,foundPos_2-1);
+					if(par_1 == "regularMarketTime\\\":")
+						compani_data[par_1] = 	new Date(+compani_data[par_1]*1000).toString();
+				}else{compani_data[par_1] = "N/A";}
+			break;
+			case 3:
+				foundPos_1 = data.indexOf(par_1, foundPos_1+1);
+				foundPos_2 = data.indexOf(",", foundPos_1);
+				temp = data.substring(foundPos_1,foundPos_2);
+				if(temp.indexOf("{}") == -1)
+				{
+					compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
+				}else{compani_data[par_1] = "N/A";}
+			break;
+			case 4:
+				if(temp.indexOf(":0,") == -1)
+				{
+					compani_data[par_1] = data.substring(foundPos_1+par_1.length+3,foundPos_2-1);
+				}else{compani_data[par_1]="N/A";}
+			break;
+			case 5:
+				if(temp.indexOf(":0,") == -1)
+				{
+					compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
+				}else{compani_data[par_1]="N/A";}
+			break;
 		}
-		
 	}
 
 	window.Asc.plugin.button = function(id)
