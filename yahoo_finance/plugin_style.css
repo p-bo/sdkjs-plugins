@@ -49,18 +49,10 @@ label{
   font-size: 11px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-.label_search{
-  width: -moz-min-content;
-  width: min-content;
-}
 .div_name{
   display: flex;
   flex-flow: column;
-  max-width: 50%;
-}
-.div_type{
-  display: flex;
-  max-width: 50%;
+  max-width: 99%;
 }
 .mouseover{
   background: rgba(200, 200, 200, 0.5);
@@ -69,4 +61,26 @@ label{
   font-size: 1em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: bold;
+}
+.info_div{
+  margin-top: 10px;
+  border: 3px solid;
+}
+select{
+  color: rgb(68, 68, 68);
+  font-size: 11px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  box-sizing: border-box;
+  outline-color: rgb(216, 218, 220);
+  background: rgb(255, 255, 255);
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(207, 207, 207);
+  border-image: initial;
+  border-radius: 2px;
+  width: 100%;
+}
+select:focus > option:checked { 
+  background: #D8DADC !important;
 }
