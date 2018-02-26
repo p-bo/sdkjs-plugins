@@ -38,18 +38,18 @@ html, body {
   align-content: center;
 }
 .data_div{
+  cursor: pointer;
   display: flex;
   justify-content: space-between;
   width: calc(100% - 60px);
   background: #fff;
-  cursor: pointer;
 }
 label{
-  cursor: pointer;
   font-size: 11px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .div_name{
+  cursor: pointer;
   display: flex;
   flex-flow: column;
   max-width: 99%;
@@ -64,7 +64,6 @@ label{
 }
 .info_div{
   margin-top: 10px;
-  border: 3px solid;
 }
 select{
   color: rgb(68, 68, 68);
@@ -80,7 +79,11 @@ select{
   border-image: initial;
   border-radius: 2px;
   width: 100%;
+  user-select: none;
 }
 select:focus > option:checked { 
   background: #D8DADC !important;
+}
+.res_label{
+border: 1px solid #D8DADC;
 }

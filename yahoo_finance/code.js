@@ -21,7 +21,8 @@
 			_names: [],						//array names
 			_type: [],						//array type
 			_disp: []},						//arry disp
-		compani_data ={regularMarketPrice:"N/A",targetMeanPrice:"N/A",epsTrailingTwelveMonths:"N/A",regularMarketChangePercent:"N/A",regularMarketPreviousClose:"N/A",regularMarketOpen:"N/A",bid:"N/A",bidSize:"N/A",ask:"N/A",askSize:"N/A",regularMarketDayLow:"N/A",regularMarketDayHigh:"N/A",fiftyTwoWeekLow:"N/A",fiftyTwoWeekHigh:"N/A",regularMarketVolume:"N/A",averageDailyVolume3Month:"N/A",marketCap:"N/A",beta:"N/A",trailingPE:"N/A",dividendRate:"N/A",dividendYield:"N/A"},					//obj companies data
+		//obj companies data
+		compani_data ={regularMarketPrice:"N/A",targetMeanPrice:"N/A",epsTrailingTwelveMonths:"N/A",regularMarketChangePercent:"N/A",regularMarketPreviousClose:"N/A",regularMarketOpen:"N/A",bid:"N/A",bidSize:"N/A",ask:"N/A",askSize:"N/A",regularMarketDayLow:"N/A",regularMarketDayHigh:"N/A",fiftyTwoWeekLow:"N/A",fiftyTwoWeekHigh:"N/A",regularMarketVolume:"N/A",averageDailyVolume3Month:"N/A",marketCap:"N/A",beta:"N/A",trailingPE:"N/A",dividendRate:"N/A",dividendYield:"N/A"},
 		_data_req =["regularMarketTime\\\":","currency\\\":\\\"","currencySymbol\\\":\\\"","symbol\\\":\\\"","shortName\\\":\\\"","exchangeName\\\":\\\"","regularMarketChange","epsTrailingTwelveMonths","targetMeanPrice"];
 	
 		window.Asc.plugin.init = function(text){	
@@ -47,8 +48,8 @@
 			}else if(inp_search.value == ""){
 				$('div.data_div').remove();
 				$('div.data_name').remove();
-				$('#my_select').remove();
-				$('#my_label').remove();
+				$('#res_select').remove();
+				$('#res_label').remove();
 				init_info = false;
 			}
 		});
@@ -127,20 +128,23 @@
 								id: 'label1' + i,
 								css: {
 									fontWeight: "bold",
-									color: "#1c7dcc"
+									color: "#1c7dcc",
+									cursor: "pointer"
 								}
 							})
 							.add($('<label>', 
 							{ 
 								text: companies._names[i],
 								id: 'label2' + i,
+								css: {cursor: "pointer"}
 							}))
 							.add($('<label>', 
 							{ 
 								text:companies._disp[i],
 								id: 'label3' + i,
 								css: {
-									fontWeight: "bold"
+									fontWeight: "bold",
+									cursor: "pointer"
 								}
 							}))
 						})
@@ -342,9 +346,10 @@
 	function init_information(){
 		init_info = true;
 		select = document.createElement('select');
-		select.id = "my_select";
+		select.id = "res_select";
 		label = document.createElement('label');
-		label.id = "my_label";
+		label.id = "res_label";
+		label.className = "res_label";
 		select.onchange = function(){
 			label.innerText = this.value;
 		};
