@@ -10,23 +10,12 @@
 		<script src="../pluginBase.js"></script>
 		<script src="code.js"></script>
 	</head>
-	<body spellcheck = "false" class="noselect">
+	<body id = "body" spellcheck = "false" class="noselect">	
+		<label class="defaultlable" style="padding-bottom:7px;" colspan="2">Paste URL</label>
+		<input type="text" class="form-control" style="width:100%;float:left;position:relative;" id="textbox_url"/ autofocus="autofocus">
+		<div id="input_error_id" class="input_error" style="width:0px;height:16px;"></div>
+		<button class="btn-text-default" style="width:100%;" id="textbox_button">OK</button>
 
-		<table class="view_table">
-		
-			<tr>
-				<td class="defaultlable" style="padding-bottom:7px;" colspan="2">Paste youtube video URL</td>
-			</tr>
-		
-			<tr>
-				<td style="width:90%;padding-bottom:15px;">
-					<input type="text" class="form-control" style="width:100%;float:left;position:relative;" id="textbox_url"/ autofocus="autofocus">
-					<div id="input_error_id" class="input_error" style="width:0px;height:16px;"></div>
-				</td>
-				<td style="width:10%;padding-bottom:15px;padding-left:10px;">
-					<button class="btn-text-default" style="width:100%;" id="textbox_button">OK</button>
-				</td>
-			</tr>
 		
 			<!--
 			<tr>

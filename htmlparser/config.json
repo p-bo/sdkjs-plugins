@@ -1,6 +1,6 @@
 {
     "name" : "Html",
-    "guid" : "asc.{BE5CBF95-C0AD-4842-B157-AC40FEDD9849}",
+    "guid" : "asc.{BE5CBF95-C0AD-4842-B157-AC40FEDD9844}",
 
     "variations" : [
         {
@@ -23,8 +23,7 @@
             "buttons"        : [ { "text": "Ok", "primary": true },
                                  { "text": "Cancel", "primary": false } ],
 
-            "initOnSelectionChanged" : true,
-            "size" : [350, 90]
+            "initOnSelectionChanged" : true
         }
     ]
 }
