@@ -8,6 +8,7 @@
 			e.stopPropagation();
 		return false;
 	};
+	var is_init = false;
 
 	window.Asc.plugin.init = function(_url){
 		var _textbox = document.getElementById("textbox_url");
@@ -34,15 +35,6 @@
 		{
 		    _url = document.getElementById("textbox_url").value;
 			get_data(_url);
-
-			//if request failed
-		    if (false)
-            {
-                document.getElementById("textbox_url").style.borderColor = "#d9534f";
-                document.getElementById("input_error_id").style.display = "block";
-                return;
-            }
-
 		};
 
 		if (_url != "")
@@ -62,11 +54,16 @@
 				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'http%3A%2F%2Freader.elisdn.ru%2F%3Furl%3D"+_url+"'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
 					//console.log(data);
-					change_plugin();
-					//parse_data(data.query.results.row);
+					data = parse_data(data.query.results.row);
+					if(JSON.stringify(data) == "{}")
+					{
+						create_error();
+						return;
+					}
+					paste_dada(data);
 				},
 				error: function(err){
-					alert("err data req");
+					create_error();
 					//handle an error
 				}
 			});
@@ -88,9 +85,9 @@
 			data = new_data.substring((foundPos_1),(foundPos_2+5));
 			new_data = new_data.replace( new RegExp(data, 'g'),"");
 		}
-		// document.body.innerHTML = new_data;			//where past
-		// new_data = document.body.innerText;
-		// document.body.innerHTML ='';
+		document.getElementById('div_in_td').innerHTML = new_data;			
+		new_data = document.getElementById('div_in_td').innerText;
+		document.getElementById('div_in_td').innerHTML ='';
 		while (true) {
 			var foundPos_1 = new_data.indexOf("<table", pos);
 			var foundPos_2 = new_data.indexOf("</table>", foundPos_1);
@@ -100,22 +97,56 @@
 			pos = foundPos_1 + 1;
 			count++;
 		}
-		console.log(tables);
 		return tables;
 	};
 
-	function change_plugin(){
+	function paste_dada(data){
+		if(!is_init){
+			myscroll = window.Asc.ScrollableDiv;
+			myscroll.create_div("div_in_td",{
+						width: "",
+						height: "",
+						left: "131px",
+						right: "20px",
+						top: "70px",
+						bottom: "16px"
+			});
+			myscroll.addEventListener(conteiner);
+			is_init = true;
+		}
+		var conteiner = document.getElementById('conteiner_id1');
+		$('label.table_list').remove();
+		conteiner.innerHTML='';
+		myscroll.updateScroll(conteiner);
 		
-		var combo = document.createElement('combo'),
-			div = document.createElement('div');
-		combo.id = 'tabla_list';
-		combo.className = 'combo';
-		div.id = 'data_div';
-		div.className = 'data_div';
+		for (var i in data)
+		{
+			$('<label>', {
+				class: 'table_list',
+				text: i,
+				on: {
+					click: function(event){
+						//if click
+						$('#conteiner_id1').html(data[this.innerText]);
+						myscroll.updateScroll(conteiner);
+					},
+					mouseover: function(event){
+						$(this).addClass('mouseover');
+					},
+					mouseout: function(event){
+						$(this).removeClass('mouseover');
+					}
+				}
+			})
+			.appendTo('#table_list');
+		}
 
-		//document.getElementById('body').appendChild(combo);
-		//document.getElementById('body').appendChild(div);
 	};
+
+	function create_error(){
+		document.getElementById("textbox_url").style.borderColor = "#d9534f";
+		document.getElementById("input_error_id").style.display = "block";
+	}
 
 	function cancelEvent(e){
 		if (e && e.preventDefault) {
@@ -131,16 +162,8 @@
 	{
 		if (id == 0)
 		{
-	       // var url = document.getElementById("textbox_url").value;
-
-			//if request failed
-            if (true)
-            {
-                document.getElementById("textbox_url").style.borderColor = "#d9534f";
-                document.getElementById("input_error_id").style.display = "block";
-                return;
-			}
-			this.executeCommand("close", "");
+	       var url = document.getElementById("textbox_url").value;
+			create_error();
 		}
 		else
 		{

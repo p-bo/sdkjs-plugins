@@ -9,21 +9,19 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 		<script src="../pluginBase.js"></script>
 		<script src="code.js"></script>
+		<script src="scrollable_div.js"></script>
 	</head>
-	<body id = "body" spellcheck = "false" class="noselect">	
+	<body spellcheck="false" class="noselect">	
 		<label class="defaultlable" style="padding-bottom:7px;" colspan="2">Paste URL</label>
-		<input type="text" class="form-control" style="width:100%;float:left;position:relative;" id="textbox_url"/ autofocus="autofocus">
-		<div id="input_error_id" class="input_error" style="width:0px;height:16px;"></div>
-		<button class="btn-text-default" style="width:100%;" id="textbox_button">OK</button>
-
-		
-			<!--
+		<div id="url" class="div_url">
+			<input type="text" class="form-control" style="width:100%;float:left;flex:1;" id="textbox_url"/ autofocus="autofocus">
+			<div id="input_error_id" class="input_error" style="width:0px;height:16px;"></div>
+			<button id="textbox_button">OK</button>
+		</div>
+		<table>
 			<tr>
-				<td colspan="2" style="background-color:#FFFF00;height:100%;">
-				</td>
+			<td id="td_left" class="td_left"><div id="table_list"></div></td> <td id="td_right"><div id="div_in_td" style="overflow:auto;max-height:calc(100% - 37px);"></div></td>
 			</tr>
-			-->
-		
 		</table>
 	</body>
 </html>

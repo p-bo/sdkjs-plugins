@@ -41,7 +41,6 @@ You can apply your classes to this divs
 			container.id = "scrollable-container-id" + this.cout;
 			textElem = document.createElement("div");
 			textElem.id = "conteiner_id" + this.cout;
-			textElem.contentEditable = "true";
 	
 			var deffaul_settings = {
 				position: "absolute",
@@ -60,7 +59,7 @@ You can apply your classes to this divs
 				container.style[i] = deffaul_settings[i];
 			
 			var inner_settings = {
-				minWidth: "98%",
+				minWidth: "97%",
 				minHeight: "95%",
 				width: "fit-content",
 				height: "fit-content",
