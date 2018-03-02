@@ -8,7 +8,14 @@
 			e.stopPropagation();
 		return false;
 	};
+
 	var is_init = false;
+
+	function validateUrl(url)
+	{
+		var p = /^(?:http:\/\/|https:\/\/)/;
+		return (url.match(p)) ? true : false;
+	}
 
 	window.Asc.plugin.init = function(_url){
 		var _textbox = document.getElementById("textbox_url");
@@ -33,8 +40,15 @@
 		
 		document.getElementById("textbox_button").onclick = function(e)
 		{
-		    _url = document.getElementById("textbox_url").value;
-			get_data(_url);
+			_url = document.getElementById("textbox_url").value;
+			if (validateUrl(_url))
+			{
+				get_data(_url);
+			}else{
+				create_error();
+				return;
+			}
+				
 		};
 
 		if (_url != "")
@@ -46,6 +60,7 @@
 	};
 
 	function get_data(_url){
+		document.getElementById('loader').style.display ='block';
 		_url = encodeURIComponent(_url);
 		try{
 			$.ajax({
@@ -53,14 +68,17 @@
 				async: true,
 				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'http%3A%2F%2Freader.elisdn.ru%2F%3Furl%3D"+_url+"'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
-					//console.log(data);
 					data = parse_data(data.query.results.row);
 					if(JSON.stringify(data) == "{}")
 					{
 						create_error();
-						return;
+						data = {
+							Error: "On this page no table was found"
+						};
+						//return;
 					}
 					paste_dada(data);
+					document.getElementById('loader').style.display ='none';
 				},
 				error: function(err){
 					create_error();
@@ -140,7 +158,7 @@
 			})
 			.appendTo('#table_list');
 		}
-
+		$('#conteiner_id1').html(data[$('#table_list label:first-child').text()]);
 	};
 
 	function create_error(){
@@ -163,7 +181,7 @@
 		if (id == 0)
 		{
 	       var url = document.getElementById("textbox_url").value;
-			create_error();
+			//to do 
 		}
 		else
 		{
