@@ -59,11 +59,11 @@ You can apply your classes to this divs
 				container.style[i] = deffaul_settings[i];
 			
 			var inner_settings = {
-				minWidth: "97%",
-				minHeight: "95%",
+				// minWidth: "97%",
+				// minHeight: "95%",
 				width: "fit-content",
 				height: "fit-content",
-				padding: "0 15px 15px 0",
+				padding: "0 15px 15px 5px",
 				outline: "none",
 				whiteSpace: "pre",
 				float: "left"

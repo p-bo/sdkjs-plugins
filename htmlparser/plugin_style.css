@@ -29,19 +29,21 @@ button {
   background: #fff;
   border: 1px solid #cfcfcf;
   border-radius: 2px;
-  color: #444444;
+	outline: none;
   font-size: 11px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   height: 22px;
   cursor: pointer;
   flex: 0.1;
-  max-width: 60px;
+  max-width: 50px;
 }
 .div_url{
   display: flex;
 }
 table{
-  border: 1px solid #4444; /* Параметры рамки */
+	border-style: solid;
+	border-color: #cbcbcb;
+	border-width: 1px;
   margin-top: 10px;
   width: 100%;
   border-collapse: collapse;
@@ -52,7 +54,9 @@ table{
   vertical-align: top;
 }
 td,th{
-  border: 1px solid #4444; /* Параметры рамки */
+	border-style: solid;
+	border-color: #cbcbcb;
+	border-width: 1px;
   padding: 4px;
   text-align: left;
 }
@@ -67,6 +71,15 @@ td,th{
 }
 .mouseover{
   background: rgba(200, 200, 200, 0.5);
+}
+.selected{
+	background: #7d858c;
+	color: #ffffff;
+}
+.refresh{
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAASAAAAEgARslrPgAAAQdJREFUSMftlMFKw0AURQ+CKWg/pFgl3Rjbf/Fj/AGNoaLLfoe09CdMd93VrStdRE2Ii9zQIDZ5E+yikAvDQDhz78zjvUCnQ9AFEAEx8KEVAyEw/MXeuBj3gEcgA/IdK1X4scxzF/OlDiQyuQJOtSYK/xKzroSa9CT4FfBruEAlq77KVPNMN/cb2LIsTgH3AqMW5qaAlcCghbkp4F1g3wI36eiPb+ZOaBuw0X62r4C59msHn5lefmuBzykmNAFGBj4QnwID640e2A5aXcgl8CY2dCmdByx08BOYAmOKzjrRrWfAt5hnnXGSJ+OU3T2fUQxkz9W8qiFwB7xQzEj5u474p07rtF/9AGK2XcT8OzMdAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTAzLTA1VDA4OjMwOjI5KzAwOjAwDmnVsgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0wMy0wNVQwODozMDoyOSswMDowMH80bQ4AAAAodEVYdHN2ZzpiYXNlLXVyaQBmaWxlOi8vL3RtcC9tYWdpY2stcUF4WXBZck79nggaAAAAAElFTkSuQmCC);
+	background-repeat: no-repeat;
+	background-position: center;
 }
 .input_error {
   display: none;
@@ -88,7 +101,7 @@ td,th{
 	display: none;
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 45%;
 	width:97px;
 }
 .cssload-loading i{
@@ -96,7 +109,7 @@ td,th{
 	height: 19px;
 	display: inline-block;
 	border-radius: 50%;
-	background: rgb(216,218,220);
+	background: rgb(68,68,68);
 }
 .cssload-loading i:first-child{
 	opacity: 0;

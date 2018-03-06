@@ -9,21 +9,28 @@
 		return false;
 	};
 
-	var is_init = false;
+	var is_init = false;			//flag init scrollable div
+	var tag_arr =['<table','<caption','<thead','<tbody','<tr','<th','<td'];
 
 	function validateUrl(url)
 	{
 		var p = /^(?:http:\/\/|https:\/\/)/;
 		return (url.match(p)) ? true : false;
-	}
+	};
 
 	window.Asc.plugin.init = function(_url){
 		var _textbox = document.getElementById("textbox_url");
 	    _textbox.onkeyup = function(e)
 	    {
 	        if (e.keyCode == 13) // click on Enter
-                document.getElementById("textbox_button").onclick();
+                document.getElementById("ok_button").onclick();
 	    };
+
+		document.getElementById('refresh_button').onclick = function(){
+			var _url = $('#conteiner_id1 table:first-child').attr('data-url');
+			if (_url)
+				get_data(_url);
+		};
 
 		// clear validation on input/paste
         _textbox.oninput = _textbox.onpaste = function(e)
@@ -38,9 +45,10 @@
             document.getElementById("input_error_id").style.display = "none";
 		});
 		
-		document.getElementById("textbox_button").onclick = function(e)
+		document.getElementById("ok_button").onclick = function(e)
 		{
-			_url = document.getElementById("textbox_url").value;
+			var _url = 'http://reader.elisdn.ru/?url='
+			_url += document.getElementById("textbox_url").value;
 			if (validateUrl(_url))
 			{
 				get_data(_url);
@@ -54,22 +62,37 @@
 		if (_url != "")
 		{
 			document.getElementById("textbox_url").value = _url;
-			document.getElementById("textbox_button").onclick();
+			document.getElementById("ok_button").onclick();
 		}
 		_textbox.focus();
 	};
 
 	function get_data(_url){
 		document.getElementById('loader').style.display ='block';
-		_url = encodeURIComponent(_url);
 		try{
 			$.ajax({
 				type: 'GET',
 				async: true,
-				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'http%3A%2F%2Freader.elisdn.ru%2F%3Furl%3D"+_url+"'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'"+encodeURIComponent(_url)+"'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
-					data = parse_data(data.query.results.row);
-					if(JSON.stringify(data) == "{}")
+					if (data.query.results == null)
+					{
+						if(_url.indexOf('http://reader.elisdn.ru/?url=',0) != -1)
+						{
+							get_data(_url.substr(29));
+							return;
+						}
+
+						create_error();
+						data = {
+							Error: "On this page no table was found or the page could not be opened.\nPlease check URL and try again."
+						};
+						paste_dada(data);
+						document.getElementById('loader').style.display ='none';
+						return;
+					}
+					data = parse_data(data.query.results.row,_url);
+					if (JSON.stringify(data) == "{}")
 					{
 						create_error();
 						data = {
@@ -88,7 +111,8 @@
 		} catch(z){console.log(z);}
 	};
 
-	function parse_data(data){
+	function parse_data(data,_url){
+		console.log(data);
 		var new_data='',
 			count = 1;
 			pos = 0,
@@ -115,6 +139,7 @@
 			pos = foundPos_1 + 1;
 			count++;
 		}
+		tables = remove_trash(tables,_url);
 		return tables;
 	};
 
@@ -129,14 +154,22 @@
 						top: "70px",
 						bottom: "16px"
 			});
-			myscroll.addEventListener(conteiner);
+			myscroll.addEventListener();
+
+			myscroll.create_div("table_list",{
+				width: "",
+				height: "",
+				left: "20px",
+				right: "668px",
+				top: "70px",
+				bottom: "16px"
+			});
 			is_init = true;
 		}
 		var conteiner = document.getElementById('conteiner_id1');
+		var conteiner_2  = document.getElementById('conteiner_id2');
 		$('label.table_list').remove();
 		conteiner.innerHTML='';
-		myscroll.updateScroll(conteiner);
-		
 		for (var i in data)
 		{
 			$('<label>', {
@@ -145,7 +178,10 @@
 				on: {
 					click: function(event){
 						//if click
+						$('label').removeClass('selected');
 						$('#conteiner_id1').html(data[this.innerText]);
+						$(this).addClass('selected');
+						myscroll.updateScroll(conteiner);
 						myscroll.updateScroll(conteiner);
 					},
 					mouseover: function(event){
@@ -156,15 +192,62 @@
 					}
 				}
 			})
-			.appendTo('#table_list');
+			.appendTo('#conteiner_id2');
 		}
-		$('#conteiner_id1').html(data[$('#table_list label:first-child').text()]);
+		myscroll.updateScroll(conteiner_2);
+		myscroll.updateScroll(conteiner_2);
+		$('#conteiner_id1').html(data[$('#conteiner_id2 label:first-child').text()]);
+		myscroll.updateScroll(conteiner);
+		myscroll.updateScroll(conteiner);
+		$('#conteiner_id2 label:first-child').addClass('selected');
+	};
+
+	function remove_trash(tables,_url){
+		for (let i in tables)
+		{	var pos_o = 0, count = 0;
+			var par_1 = '<td>',
+				par_2 = '</td>';
+			for (let j=0;j<tag_arr.length;j++)
+			{
+				var pos = 0;
+				if ( (j == 5) && (tables[i].indexOf('<thead', pos) != -1 ) )
+					pos = tables[i].indexOf('<thead', pos) + 6;
+				while (true) {
+					var foundPos_1 = tables[i].indexOf(tag_arr[j], pos);
+					var foundPos_2 = tables[i].indexOf(">", foundPos_1);
+					if ((foundPos_1 == -1) || (foundPos_2 ==-1)) break;
+					let start = tables[i].substring(0,foundPos_1+tag_arr[j].length);
+					tables[i] = start + tables[i].substring(foundPos_2);
+					pos = ++foundPos_1;
+				}
+			}
+			tables[i] = '<table data-url=' + _url + tables[i].substr(6);
+			while (count<2) {
+				var foundPos_1 = tables[i].indexOf(par_1, pos_o);
+				var foundPos_2 = tables[i].indexOf(par_2, foundPos_1);
+				if ((foundPos_1 == -1) || (foundPos_2 ==-1))
+				{
+					 count++;
+					 par_1 = '<th>';
+					 par_2 = '</th>';
+					 pos_o = 0;
+					 continue;
+				}
+				document.getElementById('div_in_td').innerHTML = tables[i].substring(foundPos_1,foundPos_2);			
+				let temp = document.getElementById('div_in_td').innerText;
+				document.getElementById('div_in_td').innerHTML ='';
+				let start = tables[i].substring(0,foundPos_1+4);
+				tables[i] = start + temp + tables[i].substring(foundPos_2);
+				pos_o = ++foundPos_1;
+			}
+		}
+		return tables;
 	};
 
 	function create_error(){
 		document.getElementById("textbox_url").style.borderColor = "#d9534f";
 		document.getElementById("input_error_id").style.display = "block";
-	}
+	};
 
 	function cancelEvent(e){
 		if (e && e.preventDefault) {
