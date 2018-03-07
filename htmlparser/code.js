@@ -10,7 +10,7 @@
 	};
 
 	var is_init = false;			//flag init scrollable div
-	var tag_arr =['<table','<caption','<thead','<tbody','<tr','<th','<td'];
+	var tag_arr =['<table','<caption','<thead','<tbody','<tr','<th','<td'];	//array html tags for remove trash
 
 	function validateUrl(url)
 	{
@@ -29,7 +29,12 @@
 		document.getElementById('refresh_button').onclick = function(){
 			var _url = $('#conteiner_id1 table:first-child').attr('data-url');
 			if (_url)
+			{
+				_textbox.value = _url.replace('http://reader.elisdn.ru/?url=','');
+				_textbox.style.borderColor = "";
+            	document.getElementById("input_error_id").style.display = "none";
 				get_data(_url);
+			}
 		};
 
 		// clear validation on input/paste
@@ -47,6 +52,8 @@
 		
 		document.getElementById("ok_button").onclick = function(e)
 		{
+			_textbox.style.borderColor = "";
+            document.getElementById("input_error_id").style.display = "none";
 			var _url = 'http://reader.elisdn.ru/?url='
 			_url += document.getElementById("textbox_url").value;
 			if (validateUrl(_url))
@@ -69,6 +76,7 @@
 
 	function get_data(_url){
 		document.getElementById('loader').style.display ='block';
+		document.getElementById('loader').style.position = 'absolute';
 		try{
 			$.ajax({
 				type: 'GET',
@@ -91,6 +99,16 @@
 						document.getElementById('loader').style.display ='none';
 						return;
 					}
+					if (JSON.stringify(data.query.results.row).indexOf('За 5 секунд HTTP-ответ от сервера не получен.') != -1)
+					{
+						create_error();
+						data = {
+							Error: "In 5 seconds the HTTP response from the server was not received.\nThe site may be temporarily overloaded or the address entered incorrectly."
+						};	
+						paste_dada(data);
+						document.getElementById('loader').style.display ='none';
+						return;
+					}
 					data = parse_data(data.query.results.row,_url);
 					if (JSON.stringify(data) == "{}")
 					{
@@ -105,21 +123,29 @@
 				},
 				error: function(err){
 					create_error();
-					//handle an error
+					data = {
+						Error: "Request is faile. Check your internet connection."
+					};	
+					paste_dada(data);
+					document.getElementById('loader').style.display ='none';
 				}
 			});
 		} catch(z){console.log(z);}
 	};
 
 	function parse_data(data,_url){
-		console.log(data);
 		var new_data='',
 			count = 1;
 			pos = 0,
 			tables = {};
 		for (let i=0;i<data.length;i++)
 			for (let key in data[i])
-				new_data += data[i][key];
+				if (key != 'col0')
+				{
+					new_data += ',' +data[i][key];
+				}else{
+					new_data += data[i][key];
+				}
 		while (true) {
 			var foundPos_1 = new_data.indexOf("<td class='number'>", 0);
 			var foundPos_2 = new_data.indexOf("</td>", foundPos_1);
@@ -151,7 +177,7 @@
 						height: "",
 						left: "131px",
 						right: "20px",
-						top: "70px",
+						top: "73px",
 						bottom: "16px"
 			});
 			myscroll.addEventListener();
@@ -161,7 +187,7 @@
 				height: "",
 				left: "20px",
 				right: "668px",
-				top: "70px",
+				top: "73px",
 				bottom: "16px"
 			});
 			is_init = true;
@@ -221,7 +247,7 @@
 					pos = ++foundPos_1;
 				}
 			}
-			tables[i] = '<table data-url=' + _url + tables[i].substr(6);
+			tables[i] = '<table data-url="' + _url + "\"" + tables[i].substr(6);
 			while (count<2) {
 				var foundPos_1 = tables[i].indexOf(par_1, pos_o);
 				var foundPos_2 = tables[i].indexOf(par_2, foundPos_1);
