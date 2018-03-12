@@ -43,6 +43,7 @@ You can apply your classes to this divs
 			textElem.id = "conteiner_id" + this.cout;
 	
 			var deffaul_settings = {
+				minWidth: "108px",
 				position: "absolute",
 				overflow: "hidden",
 				width: "",

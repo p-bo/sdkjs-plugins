@@ -1,5 +1,4 @@
 (function(window, undefined){
-	
 	window.oncontextmenu = function(e)
 	{
 		if (e.preventDefault)
@@ -11,6 +10,7 @@
 
 	var is_init = false;			//flag init scrollable div
 	var tag_arr =['<table','<caption','<thead','<tbody','<tr','<th','<td'];	//array html tags for remove trash
+	var conteiner, conteiner_2, myscroll;
 
 	function validateUrl(url)
 	{
@@ -19,8 +19,10 @@
 	};
 
 	window.Asc.plugin.init = function(_url){
+		window.Asc.plugin.resizeWindow(800, 600, 800, 600, 0, 0);				//resize plugin window	
 		var _textbox = document.getElementById("textbox_url");
-	    _textbox.onkeyup = function(e)
+	   
+		_textbox.onkeyup = function(e)
 	    {
 	        if (e.keyCode == 13) // click on Enter
                 document.getElementById("ok_button").onclick();
@@ -56,11 +58,15 @@
             document.getElementById("input_error_id").style.display = "none";
 			var _url = 'http://reader.elisdn.ru/?url='
 			_url += document.getElementById("textbox_url").value;
-			if (validateUrl(_url))
+			if (validateUrl(_url.replace('http://reader.elisdn.ru/?url=','')))
 			{
 				get_data(_url);
 			}else{
 				create_error();
+				data = {
+					Error: "Invalid URL."
+				};	
+				paste_dada(data);
 				return;
 			}
 				
@@ -68,12 +74,33 @@
 
 		if (_url != "")
 		{
-			document.getElementById("textbox_url").value = _url;
-			document.getElementById("ok_button").onclick();
+			if (validateUrl(_url))
+			{
+				document.getElementById("textbox_url").value = _url;
+				get_data("http://reader.elisdn.ru/?url="+_url);
+			}else{
+				document.getElementById("textbox_url").value = _url;
+				create_error();
+				data = {
+					Error: "Invalid URL."
+				};	
+				paste_dada(data);
+				return;
+			}
+			
 		}
-		_textbox.focus();
+		_textbox.focus();	
+		
+		window.onresize = function(){
+			if(!is_init)
+				return;
+			myscroll.updateScroll(conteiner);
+			myscroll.updateScroll(conteiner);
+			myscroll.updateScroll(conteiner_2);
+			myscroll.updateScroll(conteiner_2);
+		};
 	};
-
+	
 	function get_data(_url){
 		document.getElementById('loader').style.display ='block';
 		document.getElementById('loader').style.position = 'absolute';
@@ -186,14 +213,14 @@
 				width: "",
 				height: "",
 				left: "20px",
-				right: "668px",
+				right: "",
 				top: "73px",
 				bottom: "16px"
 			});
 			is_init = true;
 		}
-		var conteiner = document.getElementById('conteiner_id1');
-		var conteiner_2  = document.getElementById('conteiner_id2');
+		conteiner = document.getElementById('conteiner_id1');
+		conteiner_2  = document.getElementById('conteiner_id2');
 		$('label.table_list').remove();
 		conteiner.innerHTML='';
 		for (var i in data)
@@ -270,6 +297,13 @@
 		return tables;
 	};
 
+	function paste_in_document(){
+		var data = $('#conteiner_id1').html();
+		data = data.replace(/<thead>/g,'<tbody>');
+		data = data.replace(/<\/thead>/g,'</tbody>');
+		window.Asc.plugin.executeMethod("PasteHtml", [data]);
+	};
+
 	function create_error(){
 		document.getElementById("textbox_url").style.borderColor = "#d9534f";
 		document.getElementById("input_error_id").style.display = "block";
@@ -289,8 +323,9 @@
 	{
 		if (id == 0)
 		{
-	       var url = document.getElementById("textbox_url").value;
-			//to do 
+		   paste_in_document();
+		   //window.Asc.plugin.executeMethod("PasteHtml", ["<table><tr><td><a href=\"https://finance.yahoo.com/quote/AAPL?p=AAPL\";\">1</a></td></tr></table>"]);
+		   this.executeCommand("close", "");
 		}
 		else
 		{
