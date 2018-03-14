@@ -19,6 +19,8 @@
 	};
 
 	window.Asc.plugin.init = function(_url){
+		if(is_init)
+			return;
 		window.Asc.plugin.resizeWindow(800, 600, 800, 600, 0, 0);				//resize plugin window	
 		var _textbox = document.getElementById("textbox_url");
 	   
@@ -66,7 +68,7 @@
 				data = {
 					Error: "Invalid URL."
 				};	
-				paste_dada(data);
+				paste_data(data);
 				return;
 			}
 				
@@ -84,7 +86,7 @@
 				data = {
 					Error: "Invalid URL."
 				};	
-				paste_dada(data);
+				paste_data(data);
 				return;
 			}
 			
@@ -122,7 +124,7 @@
 						data = {
 							Error: "On this page no table was found or the page could not be opened.\nPlease check URL and try again."
 						};
-						paste_dada(data);
+						paste_data(data);
 						document.getElementById('loader').style.display ='none';
 						return;
 					}
@@ -132,7 +134,7 @@
 						data = {
 							Error: "In 5 seconds the HTTP response from the server was not received.\nThe site may be temporarily overloaded or the address entered incorrectly."
 						};	
-						paste_dada(data);
+						paste_data(data);
 						document.getElementById('loader').style.display ='none';
 						return;
 					}
@@ -145,7 +147,7 @@
 						};
 						//return;
 					}
-					paste_dada(data);
+					paste_data(data);
 					document.getElementById('loader').style.display ='none';
 				},
 				error: function(err){
@@ -153,7 +155,7 @@
 					data = {
 						Error: "Request is faile. Check your internet connection."
 					};	
-					paste_dada(data);
+					paste_data(data);
 					document.getElementById('loader').style.display ='none';
 				}
 			});
@@ -196,7 +198,7 @@
 		return tables;
 	};
 
-	function paste_dada(data){
+	function paste_data(data){
 		if(!is_init){
 			myscroll = window.Asc.ScrollableDiv;
 			myscroll.create_div("div_in_td",{
@@ -259,17 +261,27 @@
 		for (let i in tables)
 		{	var pos_o = 0, count = 0;
 			var par_1 = '<td>',
-				par_2 = '</td>';
+				par_2 = '</td>',
+				temp_arr = ['colspan="','rowspan="'];
 			for (let j=0;j<tag_arr.length;j++)
 			{
 				var pos = 0;
-				if ( (j == 5) && (tables[i].indexOf('<thead', pos) != -1 ) )
-					pos = tables[i].indexOf('<thead', pos) + 6;
 				while (true) {
 					var foundPos_1 = tables[i].indexOf(tag_arr[j], pos);
 					var foundPos_2 = tables[i].indexOf(">", foundPos_1);
 					if ((foundPos_1 == -1) || (foundPos_2 ==-1)) break;
-					let start = tables[i].substring(0,foundPos_1+tag_arr[j].length);
+					let temp = tables[i].substring(foundPos_1,foundPos_2);
+					var col_row ='';
+					for (let k=0;k<temp_arr.length;k++)
+					{
+						if (temp.indexOf(temp_arr[k]) != -1)
+						{
+							let p1 = temp.indexOf(temp_arr[k]);
+							let p2 = temp.indexOf('"',p1+9);
+							col_row += " " + temp.substring(p1,(p2+1));
+						}
+					}
+					var start = tables[i].substring(0,foundPos_1+tag_arr[j].length) + col_row;
 					tables[i] = start + tables[i].substring(foundPos_2);
 					pos = ++foundPos_1;
 				}
@@ -286,23 +298,79 @@
 					 pos_o = 0;
 					 continue;
 				}
-				document.getElementById('div_in_td').innerHTML = tables[i].substring(foundPos_1,foundPos_2);			
-				let temp = document.getElementById('div_in_td').innerText;
-				document.getElementById('div_in_td').innerHTML ='';
-				let start = tables[i].substring(0,foundPos_1+4);
-				tables[i] = start + temp + tables[i].substring(foundPos_2);
-				pos_o = ++foundPos_1;
+				if(tables[i].substring(foundPos_1,foundPos_2).indexOf('<table') == -1)
+				{
+					document.getElementById('div_in_td').innerHTML = tables[i].substring(foundPos_1,foundPos_2);			
+					let temp = document.getElementById('div_in_td').innerText;
+					document.getElementById('div_in_td').innerHTML ='';
+					let start = tables[i].substring(0,foundPos_1+4);
+					tables[i] = start + temp + tables[i].substring(foundPos_2);
+					pos_o = ++foundPos_1;
+				}else{
+					pos_o = ++foundPos_1;
+					continue;
+				}
 			}
 		}
 		return tables;
 	};
 
 	function paste_in_document(){
-		var data = $('#conteiner_id1').html();
-		data = data.replace(/<thead>/g,'<tbody>');
-		data = data.replace(/<\/thead>/g,'</tbody>');
-		window.Asc.plugin.executeMethod("PasteHtml", [data]);
+		var table = $('#conteiner_id1 table:first-child');
+		var cell = [];		
+		var rows = table[0].rows.length;
+		var cells = 0;
+		for (let i=0;i<rows;i++)
+		{
+			if (cells<table[0].rows[i].cells.length);
+				cells = table[0].rows[i].cells.length;
+		}
+
+		//change table
+
+
+		table = $('#conteiner_id1').html();
+		var range = localStorage['range'].split(',');
+		delete localStorage['range'];
+		//localStorage.clear()
+		cell.push(get_cell_name(range));
+		range[0] = +range[0] + --cells;
+		range[1] = +range[1] + --rows;
+		cell.push(get_cell_name(range));	
+		Asc.scope.cell = cell.join(':');
+	
+		window.Asc.plugin.callCommand(function() {
+			var oWorksheet = Api.GetActiveSheet();
+			console.log(Asc.scope.cell);
+			oWorksheet.FormatAsTable(Asc.scope.cell);
+			// oWorksheet.GetRangeByNumber(1, 312).SetValue("42");
+			//  oWorksheet.GetRange("A2").SetValue(oRange.toString());
+			// oWorksheet.GetRange("A5:A7").Merge(false);
+			//oWorksheet.GetRange("A9:E14").Merge(true);
+		}, false);
+		window.Asc.plugin.executeMethod("PasteHtml", [table]);
+		window.Asc.plugin.executeCommand("close", "");
 	};
+
+	function get_cell_name(range){
+		var symbol = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+		var name = [];
+		name.unshift(range[1]);
+		var remainder = +range[0] % 26;
+		name.unshift(symbol[remainder]);
+		var int = (+range[0] - remainder) / 26;
+		if( int >= 26)
+		{
+			remainder = (int % 26);
+			name.unshift(symbol[--remainder]);
+			int = (int - ++remainder) / 26;
+			name.unshift(symbol[--int]);
+		}else if (int > 0)
+		{
+			name.unshift(symbol[--int]);
+		}
+		return name.join('');
+	}
 
 	function create_error(){
 		document.getElementById("textbox_url").style.borderColor = "#d9534f";
@@ -323,9 +391,15 @@
 	{
 		if (id == 0)
 		{
-		   paste_in_document();
-		   //window.Asc.plugin.executeMethod("PasteHtml", ["<table><tr><td><a href=\"https://finance.yahoo.com/quote/AAPL?p=AAPL\";\">1</a></td></tr></table>"]);
-		   this.executeCommand("close", "");
+			this.callCommand(function() {
+				var oWorksheet = Api.GetActiveSheet();
+				localStorage["range"] = '' + oWorksheet.ActiveCell.range.bbox.c1 + ',' + ++oWorksheet.ActiveCell.range.bbox.r1;
+				// oWorksheet.GetRangeByNumber(1, 312).SetValue("42");
+				//  oWorksheet.GetRange("A2").SetValue(oRange.toString());
+				// oWorksheet.GetRange("A5:A7").Merge(false);
+				//oWorksheet.GetRange("A9:E14").Merge(true);
+			}, false);
+			setTimeout(paste_in_document,10);
 		}
 		else
 		{
