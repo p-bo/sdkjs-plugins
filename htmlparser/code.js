@@ -23,7 +23,7 @@
 			return;
 		window.Asc.plugin.resizeWindow(800, 600, 800, 600, 0, 0);				//resize plugin window	
 		var _textbox = document.getElementById("textbox_url");
-	   
+		_url = _url.trim();
 		_textbox.onkeyup = function(e)
 	    {
 	        if (e.keyCode == 13) // click on Enter
@@ -40,7 +40,6 @@
 				get_data(_url);
 			}
 		};
-
 		// clear validation on input/paste
         _textbox.oninput = _textbox.onpaste = function(e)
         {
@@ -59,7 +58,8 @@
 			_textbox.style.borderColor = "";
             document.getElementById("input_error_id").style.display = "none";
 			var _url = 'http://reader.elisdn.ru/?url='
-			_url += document.getElementById("textbox_url").value;
+			_url += document.getElementById("textbox_url").value.trim();
+			_textbox.value = _url.replace('http://reader.elisdn.ru/?url=','');
 			if (validateUrl(_url.replace('http://reader.elisdn.ru/?url=','')))
 			{
 				get_data(_url);
@@ -73,7 +73,6 @@
 			}
 				
 		};
-
 		if (_url != "")
 		{
 			if (validateUrl(_url))
@@ -316,18 +315,13 @@
 	};
 
 	function paste_in_document(){
-		var table = $('#conteiner_id1 table:first-child');
+		var table = change_table($('#conteiner_id1 table:first-child'));
 		var cell = [];		
 		var rows = table[0].rows.length;
 		var cells = 0;
 		for (let i=0;i<rows;i++)
-		{
-			if (cells<table[0].rows[i].cells.length);
+			if (cells<table[0].rows[i].cells.length)
 				cells = table[0].rows[i].cells.length;
-		}
-
-		//change table
-
 
 		table = $('#conteiner_id1').html();
 		var range = localStorage['range'].split(',');
@@ -338,27 +332,21 @@
 		range[1] = +range[1] + --rows;
 		cell.push(get_cell_name(range));	
 		Asc.scope.cell = cell.join(':');
-	
 		window.Asc.plugin.callCommand(function() {
 			var oWorksheet = Api.GetActiveSheet();
-			console.log(Asc.scope.cell);
 			oWorksheet.FormatAsTable(Asc.scope.cell);
-			// oWorksheet.GetRangeByNumber(1, 312).SetValue("42");
-			//  oWorksheet.GetRange("A2").SetValue(oRange.toString());
-			// oWorksheet.GetRange("A5:A7").Merge(false);
-			//oWorksheet.GetRange("A9:E14").Merge(true);
 		}, false);
-		window.Asc.plugin.executeMethod("PasteHtml", [table]);
+		window.Asc.plugin.executeMethod("PasteHtml", [table]);		
 		window.Asc.plugin.executeCommand("close", "");
 	};
 
 	function get_cell_name(range){
-		var symbol = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-		var name = [];
+		let symbol = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+		let name = [];
 		name.unshift(range[1]);
-		var remainder = +range[0] % 26;
+		let remainder = +range[0] % 26;
 		name.unshift(symbol[remainder]);
-		var int = (+range[0] - remainder) / 26;
+		let int = (+range[0] - remainder) / 26;
 		if( int >= 26)
 		{
 			remainder = (int % 26);
@@ -370,21 +358,71 @@
 			name.unshift(symbol[--int]);
 		}
 		return name.join('');
-	}
+	};
+	
+	function change_table(tab){
+		let flag = false;
+		let table = tab;
+		for (let i=0;i<table[0].rows.length;i++)
+		{
+			for (let j=0;j<table[0].rows[i].cells.length;j++)
+			{
+				if (table[0].rows[i].cells[j].attributes.length>0)
+				{
+					for (let key=0;key<table[0].rows[i].cells[j].attributes.length;key++)
+					{	
+						if (table[0].rows[i].cells[j].attributes[key].name == 'colspan')
+						{
+							let value = table[0].rows[i].cells[j].attributes[key].value - 1;				
+							table[0].rows[i].cells[j].attributes[0].value = 0;
+							for (let k = 0; k<value;k++)
+							{
+								let cell = (table[0].rows[i].cells[j].outerHTML.indexOf('<th') != -1) ? document.createElement('th') : document.createElement('td');
+								cell.innerHTML = table[0].rows[i].cells[j].outerHTML;
+								$(table[0].rows[i].cells[j]).after(cell);
+							}
+						}
+
+						if (table[0].rows[i].cells[j].attributes[key].name == 'rowspan')
+						{
+							let value = table[0].rows[i].cells[j].attributes[key].value - 1;				
+							table[0].rows[i].cells[j].attributes[0].value = 0;
+							for (let k = 0; k<value;k++)
+							{
+								let cell = (table[0].rows[i].cells[j].outerHTML.indexOf('<th') != -1) ? document.createElement('th') : document.createElement('td');
+								cell.innerHTML = table[0].rows[i].cells[j].outerHTML;
+								if (!table[0].rows[i+k+1].cells[j-1])
+								{
+									$(table[0].rows[i+k+1]).prepend(cell);
+								}else{
+									$(table[0].rows[i+k+1].cells[j-1]).after(cell);
+								}
+								
+							}
+						}
+					}
+				}
+				if (table[0].rows[i].cells[j].outerHTML.indexOf('<th') != -1)
+					flag = true;
+			}	
+		}
+		if (!flag)
+		{
+			let tr = document.createElement('tr');
+			for (let i=0;i<table[0].rows[0].cells.length;)
+			{
+				let th = document.createElement('th');
+				th.innerHTML = "Column " + (++i);
+				tr.appendChild(th);
+			}
+			$(table[0]).prepend(tr);
+		}
+		return table;
+	};
 
 	function create_error(){
 		document.getElementById("textbox_url").style.borderColor = "#d9534f";
 		document.getElementById("input_error_id").style.display = "block";
-	};
-
-	function cancelEvent(e){
-		if (e && e.preventDefault) {
-			e.stopPropagation(); // DOM style (return false doesn't always work in FF)
-			e.preventDefault();
-		}
-		else {
-			window.event.cancelBubble = true;//IE stopPropagation
-		}
 	};
 
 	window.Asc.plugin.button = function(id)
@@ -394,10 +432,6 @@
 			this.callCommand(function() {
 				var oWorksheet = Api.GetActiveSheet();
 				localStorage["range"] = '' + oWorksheet.ActiveCell.range.bbox.c1 + ',' + ++oWorksheet.ActiveCell.range.bbox.r1;
-				// oWorksheet.GetRangeByNumber(1, 312).SetValue("42");
-				//  oWorksheet.GetRange("A2").SetValue(oRange.toString());
-				// oWorksheet.GetRange("A5:A7").Merge(false);
-				//oWorksheet.GetRange("A9:E14").Merge(true);
 			}, false);
 			setTimeout(paste_in_document,10);
 		}
@@ -405,14 +439,6 @@
 		{
 			this.executeCommand("close", "");
 		}
-	};
-
-	window.Asc.plugin.onExternalMouseUp = function()
-	{
-		var evt = document.createEvent("MouseEvents");
-		evt.initMouseEvent("mouseup", true, true, window, 1, 0, 0, 0, 0,
-			false, false, false, false, 0, null);
-		document.dispatchEvent(evt);
 	};
 
 })(window, undefined);
