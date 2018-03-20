@@ -121,7 +121,7 @@
 
 						create_error();
 						data = {
-							Error: "On this page no table was found or the page could not be opened.\nPlease check URL and try again."
+							Error: "No tables found on this page or the page could not be opened.\nPlease check URL and try again."
 						};
 						paste_data(data);
 						document.getElementById('loader').style.display ='none';
@@ -142,9 +142,8 @@
 					{
 						create_error();
 						data = {
-							Error: "On this page no table was found"
+							Error: "No tables found on this page"
 						};
-						//return;
 					}
 					paste_data(data);
 					document.getElementById('loader').style.display ='none';
@@ -152,7 +151,7 @@
 				error: function(err){
 					create_error();
 					data = {
-						Error: "Request is faile. Check your internet connection."
+						Error: "Request is failed. Check your internet connection."
 					};	
 					paste_data(data);
 					document.getElementById('loader').style.display ='none';
@@ -360,9 +359,8 @@
 		return name.join('');
 	};
 	
-	function change_table(tab){
+	function change_table(table){
 		let flag = false;
-		let table = tab;
 		for (let i=0;i<table[0].rows.length;i++)
 		{
 			for (let j=0;j<table[0].rows[i].cells.length;j++)
@@ -429,11 +427,19 @@
 	{
 		if (id == 0)
 		{
-			this.callCommand(function() {
-				var oWorksheet = Api.GetActiveSheet();
-				localStorage["range"] = '' + oWorksheet.ActiveCell.range.bbox.c1 + ',' + ++oWorksheet.ActiveCell.range.bbox.r1;
-			}, false);
-			setTimeout(paste_in_document,10);
+			if($('#conteiner_id1 table:first-child')[0] === undefined)
+			{
+				data = {
+					Error: "No table selected."
+				};	
+				paste_data(data);
+			} else{
+					this.callCommand(function() {
+						var oWorksheet = Api.GetActiveSheet();
+						localStorage["range"] = '' + oWorksheet.ActiveCell.range.bbox.c1 + ',' + ++oWorksheet.ActiveCell.range.bbox.r1;
+					}, false);
+					setTimeout(paste_in_document,10);
+				}
 		}
 		else
 		{

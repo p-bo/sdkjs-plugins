@@ -9,7 +9,7 @@
 
             "icons"           : ["icon.png", "icon@2x.png", "icon.png", "icon@2x.png"],
             "isViewer"        : true,
-            "EditorsSupport"  : ["word", "cell"],
+            "EditorsSupport"  : ["cell"],
 
             "isVisual"        : true,
             "isModal"         : true,
