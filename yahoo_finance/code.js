@@ -36,7 +36,8 @@
 				$('div.data_name').remove();
 				$('#res_select').remove();
 				$('#res_label').remove();
-				$('#res_button').remove();				
+				$('#val_button').remove();		
+				$('#tab_button').remove();										
 				init_info = false;
 			}
 		});
@@ -240,7 +241,7 @@
 			});
 		}
 		catch(z){console.log(z);}
-		compani_data.regularMarketTime = new Date(compani_data.regularMarketTime*1000).toString()
+		compani_data.regularMarketTime = new Date(compani_data.regularMarketTime*1000).toString();
 	};
 
 	function parse_data(data){
@@ -294,16 +295,48 @@
 			label.innerText = this.value;
 		};
 		button = document.createElement('button');
-		button.id = 'res_button';
+		button.id = 'val_button';
 		button.className = 'btn-text-default';
-		button.innerHTML = 'Paste';
+		button.innerHTML = 'Value';
 		button.onclick = function(){
 			window.Asc.plugin.executeMethod("PasteHtml",[$('#res_label').text()]);
 		}
+		button_2 = document.createElement('button');
+		button_2.id = 'tab_button';
+		button_2.className = 'btn-text-default';
+		button_2.innerHTML = 'Table';
+		button_2.onclick = function(){
+			window.Asc.plugin.executeMethod("PasteHtml",[create_table(compani_data).outerHTML]);
+		}
 		document.getElementById('select').appendChild(select);
 		document.getElementById('select').appendChild(button);
+		document.getElementById('select').appendChild(button_2);
 		document.getElementById('info').appendChild(label);
-	}
+	};
+
+	function create_table(data){
+		var table = document.createElement('table');
+		var row = document.createElement('tr');
+		var cell_1 = document.createElement('th');
+		var cell_2 = document.createElement('th');
+		cell_1.innerHTML = "Column 1";
+		cell_2.innerHTML = "Column 2";		
+		row.appendChild(cell_1);
+		row.appendChild(cell_2);
+		table.appendChild(row);
+		for (let key in data)
+		{
+			row = document.createElement('tr');
+			cell_1 = document.createElement('td');
+			cell_2 = document.createElement('td');
+			cell_1.innerHTML = key;
+			cell_2.innerHTML = data[key];
+			row.appendChild(cell_1);
+			row.appendChild(cell_2);
+			table.appendChild(row);
+		}
+		return table;
+	};
 
 	window.Asc.plugin.button = function(id)
 	{
