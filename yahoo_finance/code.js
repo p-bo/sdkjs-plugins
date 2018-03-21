@@ -1,30 +1,16 @@
 (function(window, undefined){
 	
-	window.oncontextmenu = function(e)
-	{
-		if (e.preventDefault)
-			e.preventDefault();
-		if (e.stopPropagation)
-			e.stopPropagation();
-		return false;
-	};
-	
 	var inp_search,							//elemet input
 		btn_search,							//elemet button
 		timer,								//timer
 		init_info = false,					//flag init information about companies
 		select,								//select for parametrs
 		label,								//label for information
+		button,								//button for paste
 		predata,							//previous data request
-		companies ={						//obj companies
-			_symbols: [],					//array symbols
-			_names: [],						//array names
-			_type: [],						//array type
-			_disp: []},						//arry disp
 		//obj companies data
-		compani_data ={regularMarketPrice:"N/A",targetMeanPrice:"N/A",epsTrailingTwelveMonths:"N/A",regularMarketChangePercent:"N/A",regularMarketPreviousClose:"N/A",regularMarketOpen:"N/A",bid:"N/A",bidSize:"N/A",ask:"N/A",askSize:"N/A",regularMarketDayLow:"N/A",regularMarketDayHigh:"N/A",fiftyTwoWeekLow:"N/A",fiftyTwoWeekHigh:"N/A",regularMarketVolume:"N/A",averageDailyVolume3Month:"N/A",marketCap:"N/A",beta:"N/A",trailingPE:"N/A",dividendRate:"N/A",dividendYield:"N/A"},
-		_data_req =["regularMarketTime\\\":","currency\\\":\\\"","currencySymbol\\\":\\\"","symbol\\\":\\\"","shortName\\\":\\\"","exchangeName\\\":\\\"","regularMarketChange","epsTrailingTwelveMonths","targetMeanPrice"];
-	
+		compani_data ={ask:"N/A",askSize:"N/A",averageDailyVolume3Month:"N/A",beta:"N/A",bid:"N/A",bidSize:"N/A",currencySymbol:"N/A",currency:"N/A",dividendRate:"N/A",dividendYield:"N/A",epsTrailingTwelveMonths:"N/A",exchangeName:"N/A",fiftyTwoWeekHigh:"N/A",fiftyTwoWeekLow:"N/A",marketCap:"N/A",regularMarketChange:"N/A",regularMarketChangePercent:"N/A",regularMarketDayHigh:"N/A",regularMarketDayLow:"N/A",regularMarketOpen:"N/A",regularMarketPreviousClose:"N/A",regularMarketPrice:"N/A",regularMarketTime:"N/A",regularMarketVolume:"N/A",shortName:"N/A",symbol:"N/A",targetMeanPrice:"N/A",trailingPE:"N/A"};
+		
 		window.Asc.plugin.init = function(text){	
 			inp_search = document.getElementById("inp_search");
 			btn_search = document.getElementById("btn_search");
@@ -50,6 +36,7 @@
 				$('div.data_name').remove();
 				$('#res_select').remove();
 				$('#res_label').remove();
+				$('#res_button').remove();				
 				init_info = false;
 			}
 		});
@@ -69,21 +56,19 @@
 				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Ffinance.yahoo.com%2F_finance_doubledown%2Fapi%2Fresource%2Fsearchassist%3BsearchTerm%3D"+req_text+"%3F'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
 					if(data.query.results){
-						data = JSON.stringify(data.query.results.row);
-						data = data.substring(data.indexOf("items"));
-						companies._symbols = get_params(data,"\"symbol","\",");
-						companies._names = get_params(data,"\"name","\",");
-						companies._type = get_params(data,"\"typeDisp","\\\"}");
-						companies._disp = get_params(data,"\"exchDisp","\",");
-						if (companies._names.length) {
-							create_variants(companies);
+						data = parse_data(data.query.results.row);
+						var pos_1 = data.indexOf('[',0);
+						var pos_2 = data.indexOf(']',pos_1);
+						data = data.substring(0,pos_1) + data.substring(pos_1,pos_2).replace(/,"/g,'","') + data.substring(pos_2);
+						data = JSON.parse(data);
+						if (data.items.length>0) {
+							create_variants(data.items);
 						}else{
 							create_not_found();
 						}
 					}else{
 						create_not_found();
 					}	
-				
 				},
 				error: function(err){
 					//handle an error
@@ -98,7 +83,7 @@
 	{
 		$('div.data_div').remove();
 		$('div.data_name').remove();
-		for (var i=companies._names.length-1; i>=0;i--)
+		for (var i=companies.length-1; i>=0;i--)
 		{
 			$('<div>', {
 				id: 'data_div'+i,
@@ -124,7 +109,7 @@
 							append:
 							$('<label>',
 							{
-								text: companies._symbols[i],
+								text: companies[i].symbol,
 								id: 'label1' + i,
 								css: {
 									fontWeight: "bold",
@@ -134,13 +119,13 @@
 							})
 							.add($('<label>', 
 							{ 
-								text: companies._names[i],
+								text: companies[i].name,
 								id: 'label2' + i,
 								css: {cursor: "pointer"}
 							}))
 							.add($('<label>', 
 							{ 
-								text:companies._disp[i],
+								text:companies[i].exchDisp,
 								id: 'label3' + i,
 								css: {
 									fontWeight: "bold",
@@ -168,6 +153,8 @@
 	};
 
 	function get_data(req_text){
+		for (let key in compani_data)
+			compani_data[key] = 'N/A';
 		var pos = req_text.indexOf("^");
 		if (pos != -1)
 			req_text = req_text.substring(0,pos) + "%255E" + req_text.substring(pos+1); 
@@ -178,26 +165,17 @@
 				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+req_text+"%3Flang%3Den-US%26modules%3Dprice%252CsummaryDetail%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				//url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+req_text+"%3Fformatted%3Dtrue%26lang%3Den-US%26region%3DUS%26modules%3Dprice%252CsummaryDetail%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
-					//console.log(data);
-					data = JSON.stringify(data.query.results.row);
-					if(data.indexOf("result\\\":[]") !=-1)
-						return;
-					data = data.substring(data.indexOf("result")+5);
-					for (var i in compani_data)
-						if(data.indexOf(i) !== -1)
-							get_compani_data(data,i,1);
-					for(var i = 0; i<6;i++)
-						if(data.indexOf(_data_req[i]) !== -1)
-						{
-							get_compani_data(data,_data_req[i],2);
-						}else {
-							compani_data[_data_req[i]] = "N/A";
-						}
-					get_compani_data(data,_data_req[6],3);
-					//console.log(compani_data);
+					data = parse_data(data.query.results.row);					
+					data = JSON.parse(data);
+					if (data.quoteSummary.result.length > 0)
+					{
+						get_compani_data(data.quoteSummary.result[0]);
+					}else{
+						create_not_found();
+					}
 				},
 				error: function(err){
-					alert("err data req");
+					create_not_found();
 					//handle an error
 				}
 			});
@@ -207,21 +185,17 @@
 			$.ajax({
 				type: 'GET',
 				async: false,
-				//url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+req_text+"%3Fformatted%3Dtrue%26lang%3Den-US%26region%3DUS%26modules%3Dprice%252CsummaryDetail%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
-				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv7%2Ffinance%2Fquote%3Fformatted%3Dtrue%26lang%3Den-US%26region%3DUS%26symbols%3"+req_text+"%26fields%3DmessageBoardId%252ClongName%252CshortName%252CmarketCap%252CunderlyingSymbol%252CunderlyingExchangeSymbol%252CheadSymbolAsString%252CregularMarketPrice%252CregularMarketChange%252CregularMarketChangePercent%252CregularMarketVolume%252Cuuid%252CregularMarketOpen%252CfiftyTwoWeekLow%252CfiftyTwoWeekHigh%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+req_text+"%3Fformatted%3Dtrue%26lang%3Den-US%26region%3DUS%26modules%3Dprice%252CsummaryDetail%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+				//url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv7%2Ffinance%2Fquote%3Fformatted%3Dtrue%26lang%3Den-US%26region%3DUS%26symbols%3"+req_text+"%26fields%3DmessageBoardId%252ClongName%252CshortName%252CmarketCap%252CunderlyingSymbol%252CunderlyingExchangeSymbol%252CheadSymbolAsString%252CregularMarketPrice%252CregularMarketChange%252CregularMarketChangePercent%252CregularMarketVolume%252Cuuid%252CregularMarketOpen%252CfiftyTwoWeekLow%252CfiftyTwoWeekHigh%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
-					data = JSON.stringify(data.query.results.row);
-					if(data.indexOf("result\\\":[]") !=-1)
-						return;
-					data = data.substring(data.indexOf("result")+5);
-					for (var i in compani_data)
-						if(data.indexOf(i) !== -1)
-							get_compani_data(data,i,1);
-					console.log(compani_data);
+					data = parse_data(data.query.results.row);					
+					data = JSON.parse(data);
+					if (data.quoteSummary.result.length > 0)
+					{
+						get_compani_data(data.quoteSummary.result[0]);
+					}
 				},
 				error: function(err){
-					create_not_found();
-					//alert("err data req");
 					//handle an error
 				}
 			});
@@ -234,17 +208,14 @@
 				async: false,
 				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery1.finance.yahoo.com%2Fv7%2Ffinance%2Fquote%3Fsymbols%3D"+req_text+"'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
-					data = JSON.stringify(data.query.results.row);
-					if(data.indexOf("result\\\":[]") !=-1)
-						return;
-					data = data.substring(data.indexOf("result")+5);
-					if(data.indexOf(_data_req[7]) !== -1)
-						get_compani_data(data,_data_req[7],4);
-					//console.log(compani_data);
+					data = parse_data(data.query.results.row);					
+					data = JSON.parse(data);
+					if (data.quoteResponse.result.length > 0)
+					{
+						get_compani_data(data.quoteResponse.result[0]);
+					}
 				},
 				error: function(err){
-					create_not_found();
-					//alert("err data req");
 					//handle an error
 				}
 			});
@@ -256,78 +227,49 @@
 				async: false,
 				url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url%3D'https%3A%2F%2Fquery2.finance.yahoo.com%2Fv10%2Ffinance%2FquoteSummary%2F"+req_text+"%3Fmodules%3DsummaryProfile%252CfinancialData%252CrecommendationTrend%252CupgradeDowngradeHistory%252Cearnings%252CdefaultKeyStatistics%252CcalendarEvents%26corsDomain%3Dfinance.yahoo.com'&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 				success: function(data){
-					data = JSON.stringify(data.query.results.row);
-					if(data.indexOf("result\\\":null,") !=-1)
-						return;
-					data = data.substring(data.indexOf("result")+5);
-					if(data.indexOf(_data_req[8]) !== -1)
-						get_compani_data(data,_data_req[8],5);
-					console.log(compani_data);
+					data = parse_data(data.query.results.row);					
+					data = JSON.parse(data);
+					if (data.quoteSummary.result)
+					{
+						get_compani_data(data.quoteSummary.result[0]);
+					}
 				},
 				error: function(err){
-					create_not_found();
-					//alert("err data req");
 					//handle an error
 				}
 			});
 		}
 		catch(z){console.log(z);}
+		compani_data.regularMarketTime = new Date(compani_data.regularMarketTime*1000).toString()
 	};
 
-	function get_params(data,par_1,par_2){
-		var pos = 0;
-		var arr = [];
-		while (true) {
-			var foundPos_1 = data.indexOf(par_1, pos);
-			var foundPos_2 = data.indexOf(par_2, foundPos_1);
-			if (foundPos_1 == -1) break;
-			let temp = data.substring((foundPos_1+par_1.length+5),(foundPos_2));
-			arr.push(temp);
-			pos = foundPos_1 + 1;
-		}
-		return arr;
+	function parse_data(data){
+		var new_data ='';
+		for (var key in data)
+			if ( data[key].indexOf('":"') == -1)
+			{
+				new_data += ',"' +data[key];
+			}else {
+				new_data += ',"' +data[key].replace(/,/g,' ') +'"';
+			}
+		new_data = new_data.replace(/"{/g,'{');
+		new_data = new_data.replace(/"",/g,'",');
+		new_data = new_data.replace(/}"/g,'}');
+		new_data = new_data.replace(/]"/g,']');
+		new_data = new_data.replace(/":","/g,'":"","');	
+		new_data = new_data.replace(/,{/,'{"');	
+		return new_data;
 	};
 
-	function get_compani_data(data,par_1,flag){
-		var temp,
-			foundPos_1 = data.indexOf(par_1, 0),
-			foundPos_2 = data.indexOf(",", foundPos_1);
-			temp = data.substring(foundPos_1,foundPos_2);
-		switch(flag){
-			case 1:
-				if(temp.indexOf("{}") == -1)
-					compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
-			break;
-			case 2:
-				temp = data.substring(foundPos_1-3,foundPos_2);
-				if(temp.indexOf("\":0") == -1)
-				{
-					compani_data[par_1] = data.substring(foundPos_1+par_1.length,foundPos_2-1);
-					if(par_1 == "regularMarketTime\\\":")
-						compani_data[par_1] = new Date(+compani_data[par_1]*1000).toString();
-				}else{compani_data[par_1] = "N/A";}
-			break;
-			case 3:
-				foundPos_1 = data.indexOf(par_1, foundPos_1+1);
-				foundPos_2 = data.indexOf(",", foundPos_1);
-				temp = data.substring(foundPos_1,foundPos_2);
-				if(temp.indexOf("{}") == -1)
-				{
-					compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
-				}else{compani_data[par_1] = "N/A";}
-			break;
-			case 4:
-				if(temp.indexOf(":0,") == -1)
-				{
-					compani_data[par_1] = data.substring(foundPos_1+par_1.length+3,foundPos_2-1);
-				}else{compani_data[par_1]="N/A";}
-			break;
-			case 5:
-				if(temp.indexOf("{}") == -1)
-				{
-					compani_data[par_1] = data.substring(foundPos_1+par_1.length+12,foundPos_2-1);
-				}else{compani_data[par_1]="N/A";}
-			break;
+	function get_compani_data(data){
+		for (var i in data)
+		{
+			for (var key in data[i])
+				if(compani_data[key] && (JSON.stringify(data[i][key])!='{}'))
+					compani_data[key] = data[i][key]['fmt'] || data[i][key]['raw'] || data[i][key]['longFmt'] || data[i][key];
+			
+			if((compani_data[i] && (compani_data[i] =='N/A')) && (JSON.stringify(data[i])!='{}'))
+				compani_data[i] = data[i];
 		}
 	};
 
@@ -336,24 +278,30 @@
 			init_information();
 		select.innerHTML = "";
 		for (var i in data)
-		{	
-			select.innerHTML += ("<option value=\"" + data[i] + "\">" + i.replace(/\\\"/g,"").replace(/:/,"") + "</option>");
-		}
+			select.innerHTML += ("<option value=\"" + data[i] + "\">" + i + "</option>");
 		
-		label.innerText = data.regularMarketPrice; 
+		label.innerText = data.ask; 
 	};
 
 	function init_information(){
 		init_info = true;
 		select = document.createElement('select');
-		select.id = "res_select";
+		select.id = 'res_select';
 		label = document.createElement('label');
-		label.id = "res_label";
-		label.className = "res_label";
+		label.id = 'res_label';
+		label.className = 'res_label';
 		select.onchange = function(){
 			label.innerText = this.value;
 		};
-		document.getElementById('info').appendChild(select);
+		button = document.createElement('button');
+		button.id = 'res_button';
+		button.className = 'btn-text-default';
+		button.innerHTML = 'Paste';
+		button.onclick = function(){
+			window.Asc.plugin.executeMethod("PasteHtml",[$('#res_label').text()]);
+		}
+		document.getElementById('select').appendChild(select);
+		document.getElementById('select').appendChild(button);
 		document.getElementById('info').appendChild(label);
 	}
 
@@ -361,17 +309,4 @@
 	{
 		this.executeCommand("close", "");
 	};
-	
-	window.onresize = function() {
-		//to do
-	};
-
-	window.Asc.plugin.onExternalMouseUp = function()
-	{
-		var evt = document.createEvent("MouseEvents");
-		evt.initMouseEvent("mouseup", true, true, window, 1, 0, 0, 0, 0,
-			false, false, false, false, 0, null);
-		document.dispatchEvent(evt);
-	};
-
 })(window, undefined);

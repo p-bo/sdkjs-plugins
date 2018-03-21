@@ -65,9 +65,13 @@ label{
 .info_div{
   margin-top: 10px;
 }
+.select_div{
+  display: flex;
+  flex-flow: row;
+}
 select{
   color: rgb(68, 68, 68);
-  font-size: 11px;
+  font-size: 13px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   cursor: pointer;
   box-sizing: border-box;
@@ -78,12 +82,13 @@ select{
   border-color: rgb(207, 207, 207);
   border-image: initial;
   border-radius: 2px;
-  width: 100%;
+  flex: 1;
   user-select: none;
 }
 select:focus > option:checked { 
   background: #D8DADC !important;
 }
 .res_label{
+font-size: 13px;
 border: 1px solid #D8DADC;
 }
