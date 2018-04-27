@@ -1,0 +1,236 @@
+html, body {
+  height: 100%;
+  flex-flow: column;
+  width: 100%;
+  margin: 0;				
+  padding:10px 10px 15px;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+.noselect {
+  -khtml-user-select: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-touch-action: none;
+}
+label {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+input::selection {
+  background: #D8DADC; /* WebKit/Blink Browsers */
+}
+input::-moz-selection {
+  background: #D8DADC; /* Gecko Browsers */
+}
+div::selection {
+  background: #D8DADC; /* WebKit/Blink Browsers */
+}
+div::-moz-selection {
+  background: #D8DADC; /* Gecko Browsers */
+}
+button {
+  background: #fff;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+	outline: none;
+  font-size: 11px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: 22px;
+  cursor: pointer;
+  flex: 0.1;
+  max-width: 50px;
+}
+.div_url{
+  display: flex;
+}
+table{
+	border-style: solid;
+	border-color: #cbcbcb;
+	border-width: 1px;
+  width: 100%;
+  border-collapse: collapse;
+  height:  calc(100% + 15px);
+}
+.td_left{
+  width: 200px;
+  vertical-align: top;
+}
+.td_right{
+  vertical-align: top;
+}
+td,th{
+	border-style: solid;
+	border-color: #cbcbcb;
+	border-width: 1px;
+  padding: 4px;
+  text-align: left;
+}
+.item_list{
+	margin-top: 3px;
+  font-weight: bold;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+	cursor: pointer;
+	width: fit-content;
+}
+.mouseover{
+  background: rgba(200, 200, 200, 0.5);
+}
+.selected{
+	background: #7d858c;
+	color: #ffffff;
+}
+.refresh{
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAASAAAAEgARslrPgAAAQdJREFUSMftlMFKw0AURQ+CKWg/pFgl3Rjbf/Fj/AGNoaLLfoe09CdMd93VrStdRE2Ii9zQIDZ5E+yikAvDQDhz78zjvUCnQ9AFEAEx8KEVAyEw/MXeuBj3gEcgA/IdK1X4scxzF/OlDiQyuQJOtSYK/xKzroSa9CT4FfBruEAlq77KVPNMN/cb2LIsTgH3AqMW5qaAlcCghbkp4F1g3wI36eiPb+ZOaBuw0X62r4C59msHn5lefmuBzykmNAFGBj4QnwID640e2A5aXcgl8CY2dCmdByx08BOYAmOKzjrRrWfAt5hnnXGSJ+OU3T2fUQxkz9W8qiFwB7xQzEj5u474p07rtF/9AGK2XcT8OzMdAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTAzLTA1VDA4OjMwOjI5KzAwOjAwDmnVsgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0wMy0wNVQwODozMDoyOSswMDowMH80bQ4AAAAodEVYdHN2ZzpiYXNlLXVyaQBmaWxlOi8vL3RtcC9tYWdpY2stcUF4WXBZck79nggaAAAAAElFTkSuQmCC);
+	background-repeat: no-repeat;
+	background-position: center;
+	height:27px;
+}
+.input_error {
+  display: none;
+  float: left;
+  position: relative;
+}
+.input_error:before {
+  content: '';
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAACvSURBVDhPrZNRDoIwEER7COA6HgJPpAnHM4oXQdFE/VDfNrsfpQvGhkneT2dmky40rK77pq6ggx4eyhF2UGnMF4EWBvjMcIFW46nEgLcGl5BMOoSDGmR6EjZNz0GyjdbjALlfFjR5HnRajwNkSVnI5HnQaz0OkE1nIZPnwVPrxQNGrc9f4Qcnra+zxAbKP6OIg/IfyYSxhasGPcTzyyYC9pjO8IIbHGAPy4/pf4XwBSVejZ5wzd0zAAAAAElFTkSuQmCC);
+}
+
+/* loader */
+.cssload-container{
+	z-index: 1;
+	display: none;
+  position: absolute;
+  top: 50%;
+  left: 45%;
+	width:97px;
+}
+.cssload-loading i{
+	width: 19px;
+	height: 19px;
+	display: inline-block;
+	border-radius: 50%;
+	background: rgb(68,68,68);
+}
+.cssload-loading i:first-child{
+	opacity: 0;
+	animation:cssload-loading-ani2 0.58s linear infinite;
+		-o-animation:cssload-loading-ani2 0.58s linear infinite;
+		-ms-animation:cssload-loading-ani2 0.58s linear infinite;
+		-webkit-animation:cssload-loading-ani2 0.58s linear infinite;
+		-moz-animation:cssload-loading-ani2 0.58s linear infinite;
+	transform:translate(-19px);
+		-o-transform:translate(-19px);
+		-ms-transform:translate(-19px);
+		-webkit-transform:translate(-19px);
+		-moz-transform:translate(-19px);
+}
+.cssload-loading i:nth-child(2),
+.cssload-loading i:nth-child(3){
+	animation:cssload-loading-ani3 0.58s linear infinite;
+		-o-animation:cssload-loading-ani3 0.58s linear infinite;
+		-ms-animation:cssload-loading-ani3 0.58s linear infinite;
+		-webkit-animation:cssload-loading-ani3 0.58s linear infinite;
+		-moz-animation:cssload-loading-ani3 0.58s linear infinite;
+}
+.cssload-loading i:last-child{
+	animation:cssload-loading-ani1 0.58s linear infinite;
+		-o-animation:cssload-loading-ani1 0.58s linear infinite;
+		-ms-animation:cssload-loading-ani1 0.58s linear infinite;
+		-webkit-animation:cssload-loading-ani1 0.58s linear infinite;
+		-moz-animation:cssload-loading-ani1 0.58s linear infinite;
+}
+@keyframes cssload-loading-ani1{
+	100%{
+		transform:translate(39px);
+		opacity: 0;
+	}
+}
+@-o-keyframes cssload-loading-ani1{
+	100%{
+		-o-transform:translate(39px);
+		opacity: 0;
+	}
+}
+@-ms-keyframes cssload-loading-ani1{
+	100%{
+		-ms-transform:translate(39px);
+		opacity: 0;
+	}
+}
+@-webkit-keyframes cssload-loading-ani1{
+	100%{
+		-webkit-transform:translate(39px);
+		opacity: 0;
+	}
+}
+@-moz-keyframes cssload-loading-ani1{
+	100%{
+		-moz-transform:translate(39px);
+		opacity: 0;
+	}
+}
+@keyframes cssload-loading-ani2{
+	100%{
+		transform:translate(19px);
+		opacity: 1;
+	}
+}
+@-o-keyframes cssload-loading-ani2{
+	100%{
+		-o-transform:translate(19px);
+		opacity: 1;
+	}
+}
+@-ms-keyframes cssload-loading-ani2{
+	100%{
+		-ms-transform:translate(19px);
+		opacity: 1;
+	}
+}
+@-webkit-keyframes cssload-loading-ani2{
+	100%{
+		-webkit-transform:translate(19px);
+		opacity: 1;
+	}
+}
+@-moz-keyframes cssload-loading-ani2{
+	100%{
+		-moz-transform:translate(19px);
+		opacity: 1;
+	}
+}
+@keyframes cssload-loading-ani3{
+	100%{
+		transform:translate(19px);
+	}
+}
+@-o-keyframes cssload-loading-ani3{
+	100%{
+		-o-transform:translate(19px);
+	}
+}
+@-ms-keyframes cssload-loading-ani3{
+	100%{
+		-ms-transform:translate(19px);
+	}
+}
+@-webkit-keyframes cssload-loading-ani3{
+	100%{
+		-webkit-transform:translate(19px);
+	}
+}
+@-moz-keyframes cssload-loading-ani3{
+	100%{
+		-moz-transform:translate(19px);
+	}
+}
+/* end loader */

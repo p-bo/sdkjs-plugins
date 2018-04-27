@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Citations</title>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		<link rel="stylesheet" href="../plugins.css">
+		<link rel="stylesheet" href="plugin_style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+		<script src="../pluginBase.js"></script>
+		<script src="mendeley-javascript-sdk/dist/standalone.js"></script>		
+		<script src="citeproc-js-simple/src/citeproc.js"></script>
+		<script src="citeproc-js-simple/citeproc-wrapper.js"></script>
+		<script src="code.js"></script>
+		<script src="scrollable_div.js"></script>
+		<link href="select2-4.0.6-rc.1/dist/css/select2.css" rel="stylesheet" />
+		<script src="select2-4.0.6-rc.1/dist/js/select2.js"></script>
+	</head>
+	<body spellcheck="false" class="noselect">	
+		<!-- <label class="defaultlable" style="padding-bottom:7px;" colspan="2">Paste URL</label>
+		<div id="url" class="div_url">
+			<input type="text" class="form-control" style="width:100%;float:left;flex:1;" id="textbox_url"/ autofocus="autofocus">
+			<div id="input_error_id" class="input_error" style="width:0px;height:16px;"></div>
+			<button id="ok_button">OK</button>
+			<button id="refresh_button" class="refresh"></button>
+		</div> -->
+		<div id="loader" class="cssload-container">
+				<div class="cssload-loading"><i></i><i></i><i></i><i></i></div>
+		</div>
+		<table>
+			<tr>
+				<td id="td_left" class="td_left">
+					<div id="url" class="div_url">
+							<input type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;" id="inp_search">
+							<button id="refresh_button" class="refresh"></button>
+						</div>
+					<div id="table_list"></div>
+				</td> 
+				<td id="td_right" class="td_right">
+					<div style="max-height:101%;display: flex;">
+						<div style="flex:0.7">	
+							<select id="select_style" style="width:100%"></select>
+						</div>
+						<div style="flex:0.3">
+							<select id="select_locale" style="width:100%"></select>
+						</div>
+					</div>
+					<div>
+						<div>
+							<label style="margin-top:10px;">Link prewiev</label>
+							<input type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;" id="link_prew">
+						</div>
+						<div>
+							<label style="margin-top:10px;">Citation prewiev</label>
+							<input type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;" id="citate_prew">
+						</div>
+						<div>
+							<label id="bibliography_prew" style="margin-top:10px;">Bibliography prewiev</label>
+							<!-- <textarea class="form-control" style="resize:none;width:100%;float:left;flex:1;height:200px;" id="bibliography_prew"></textarea> -->
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>	
