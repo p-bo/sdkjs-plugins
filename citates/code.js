@@ -7,19 +7,12 @@
 		myscroll,					//custom scroll
 		implicitGrantFlow,			//mendeley auth flow
 		citations,					//citations 
-		style,						//name selected style
 		selectedStyle,				//selected style
 		locale,						//selected locale
 		preferredLocale,			//label locale
 		citations = {};				//obj citations;
 		
-		var test;
-	
-
 	window.Asc.plugin.init = function (text) {	
-		window.Asc.plugin.loadModule("citeproc-js-simple/test/citations.json", function(content){
-			test = JSON.parse(content);
-		});
 		loadStylesAndLocales('citeproc-js-simple/locales/locales.json', '#select_locale');
 		loadStylesAndLocales('citeproc-js-simple/styles/styles.json', '#select_style');
 		auth();
@@ -87,17 +80,13 @@
 			}).on('select2:select', function (e) {
 				var data = e.params.data;
 				loadSelected(data.id);
-				if (data.id.indexOf('.xml') == -1) {
-					style = data.text.replace('.csl','');;
-				} else {
-					preferredLocale = data.text.replace('.xml','');;
+				if (data.id.indexOf('.xml') !== -1) {
+					preferredLocale = data.text.replace('.xml','');
 				}
 			});
 			var val = $(elem + " option:selected").val();
 			loadSelected(val);
-			if (val.indexOf('.xml') == -1) {
-				style = val.replace('.csl','');
-			} else {
+			if (val.indexOf('.xml') !== -1) {
 				preferredLocale = val.replace('.xml','');
 			}
 		});
@@ -107,12 +96,19 @@
 		if (file.indexOf('.xml') == -1) {
 			window.Asc.plugin.loadModule('citeproc-js-simple/styles/' + file, function(result){
 				selectedStyle = result;
+				if(JSON.stringify(citations) !== '{}') {
+					createPreview(citations);
+				}
 			});
 		} else {
 			window.Asc.plugin.loadModule('citeproc-js-simple/locales/' + file, function(result){
 				locale = result;
+				if(JSON.stringify(citations) !== '{}') {
+					createPreview(citations);
+				}
 			});
 		}
+		
 	};
 
 	function auth() {
@@ -143,7 +139,6 @@
 
 	function failed(error) {
 		console.error(error);
-		
 	};
 
 	function pasteData(value) {
@@ -206,7 +201,7 @@
 			}
 		}
 		return newLib;
-	}
+	};
 
 	function renderLibrary(data) {
 		$('label.item_list').remove();
@@ -229,6 +224,7 @@
 							for (key in citations) {
 								if (citations[key].title === this.innerText) {
 									delete citations[key];
+									createPreview(citations);
 								}
 							}
 						}
@@ -260,7 +256,6 @@
 					var tmp = [];
 					tmp.push(['' + item[key]]);
 					citate.issued['date-parts'] = tmp;
-					// citate.issued['date-parts'][0][0] = '' + item[key];
 					continue;
 				}
 				if (key === 'pages') {
@@ -290,23 +285,14 @@
 	};
 
 	function createPreview(citations) {
-		var styleDir = 'citeproc-js-simple/styles';
-
-		var cite = new Citeproc(preferredLocale, styleDir, style, citations, selectedStyle, locale, function (citeproc) {
-		
-			citeproc.updateItems(Object.keys(citations));
-			// console.log('citeproc',citeproc);			
+		new Citeproc(preferredLocale, citations, selectedStyle, locale, function (citeproc) {
+			citeproc.updateItems(Object.keys(citations));			
 			var bibliography = citeproc.makeBibliography();
-			// var citate = citeproc.getCitationLabel(test['Item-1']);
-			// var result = citeproc.makeCitationCluster([test['Item-1'],test['Item-2'],test['Item-3'],test['Item-4']]);
-			// console.log('result',result);			
-			// console.log('citate',citate);
-			console.log('citations',citations);
-			
 			console.log('bibliography',bibliography);
-			
+			//форматировать текст
+			conteiner_2.innerHTML = bibliography[1].join();
         });
-	}
+	};
 
 
 	function checkInternetExplorer(){
