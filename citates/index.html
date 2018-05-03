@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -9,7 +8,7 @@
 		<link rel="stylesheet" href="plugin_style.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 		<script src="../pluginBase.js"></script>
-		<script src="mendeley-javascript-sdk/dist/standalone.js"></script>		
+		<script src="mendeley-sdk/standalone.js"></script>		
 		<script src="citeproc-js-simple/src/citeproc.js"></script>
 		<script src="citeproc-js-simple/citeproc-wrapper.js"></script>
 		<script src="code.js"></script>
@@ -18,13 +17,6 @@
 		<script src="select2-4.0.6-rc.1/dist/js/select2.js"></script>
 	</head>
 	<body spellcheck="false" class="noselect">	
-		<!-- <label class="defaultlable" style="padding-bottom:7px;" colspan="2">Paste URL</label>
-		<div id="url" class="div_url">
-			<input type="text" class="form-control" style="width:100%;float:left;flex:1;" id="textbox_url"/ autofocus="autofocus">
-			<div id="input_error_id" class="input_error" style="width:0px;height:16px;"></div>
-			<button id="ok_button">OK</button>
-			<button id="refresh_button" class="refresh"></button>
-		</div> -->
 		<div id="loader" class="cssload-container">
 				<div class="cssload-loading"><i></i><i></i><i></i><i></i></div>
 		</div>
@@ -52,12 +44,7 @@
 							<input type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;" id="link_prew">
 						</div>
 						<div>
-							<label style="margin-top:10px;">Citation prewiev</label>
-							<input type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;" id="citate_prew">
-						</div>
-						<div>
 							<label id="bibliography_prew" style="margin-top:10px;">Bibliography prewiev</label>
-							<!-- <textarea class="form-control" style="resize:none;width:100%;float:left;flex:1;height:200px;" id="bibliography_prew"></textarea> -->
 						</div>
 					</div>
 				</td>

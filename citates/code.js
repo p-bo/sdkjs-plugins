@@ -7,11 +7,19 @@
 		myscroll,					//custom scroll
 		implicitGrantFlow,			//mendeley auth flow
 		citations,					//citations 
+		style,						//name selected style
 		selectedStyle,				//selected style
-		locale;						//selected locale
+		locale,						//selected locale
+		preferredLocale,			//label locale
+		citations = {};				//obj citations;
+		
+		var test;
 	
 
 	window.Asc.plugin.init = function (text) {	
+		window.Asc.plugin.loadModule("citeproc-js-simple/test/citations.json", function(content){
+			test = JSON.parse(content);
+		});
 		loadStylesAndLocales('citeproc-js-simple/locales/locales.json', '#select_locale');
 		loadStylesAndLocales('citeproc-js-simple/styles/styles.json', '#select_style');
 		auth();
@@ -44,7 +52,7 @@
 				height: "",
 				left: "234px",
 				right: "25px",
-				top: "160px",
+				top: "115px",
 				bottom: "20px",
 				border: '1px solid rgba(200, 200, 200, 0.5)'
 			});
@@ -79,8 +87,19 @@
 			}).on('select2:select', function (e) {
 				var data = e.params.data;
 				loadSelected(data.id);
+				if (data.id.indexOf('.xml') == -1) {
+					style = data.text.replace('.csl','');;
+				} else {
+					preferredLocale = data.text.replace('.xml','');;
+				}
 			});
-			loadSelected($(elem + " option:selected").val())
+			var val = $(elem + " option:selected").val();
+			loadSelected(val);
+			if (val.indexOf('.xml') == -1) {
+				style = val.replace('.csl','');
+			} else {
+				preferredLocale = val.replace('.xml','');
+			}
 		});
 	};
 
@@ -99,30 +118,36 @@
 	function auth() {
 		const SETTINGS = {
 			clientId: 5468,
-			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/mendeley/index.html'
+			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citates/index.html'
 		};
 		implicitGrantFlow = MendeleySDK.Auth.implicitGrantFlow(SETTINGS);
 		// implicitGrantFlow.authenticate();			//force autentification
 		// var token = implicitGrantFlow.getToken();	//get token
 		MendeleySDK.API.setAuthFlow(implicitGrantFlow);
-		MendeleySDK.API.profiles.me().then(sucsess,failed);
+		// MendeleySDK.API.profiles.me().then(sucsess,failed);	//get user accaunt info
+		MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed);
 	};
 
 	function sucsess(result) {
-		if (result.id) MendeleySDK.API.documents.retrieve(`?limit=500&uuid=${result.id}`).then(sucsess,failed); //MendeleySDK.API.documents.retrieve(`984e8e01-0fc0-3405-ae36-a17833c9286c?view=all`).then(sucsess,failed);  //MendeleySDK.API.documents.retrieve(`?limit=500&uuid=${result.id}`).then(sucsess,failed);
+		// if (result.id) MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed); 
+		//MendeleySDK.API.documents.retrieve(`984e8e01-0fc0-3405-ae36-a17833c9286c?view=all`).then(sucsess,failed);  
+		//MendeleySDK.API.documents.retrieve(`?limit=500&uuid=${result.id}`).then(sucsess,failed);
 		if (result && result.length > 0) {
 			library = result;
 			pasteData();
 			document.getElementById('loader').style.display ='none';
+		} else if (typeof result === 'object') {
+			createCitate(result);
 		}
 	};
+
 	function failed(error) {
 		console.error(error);
 		
 	};
 
 	function pasteData(value) {
-		if (JSON.stringify(library) === '{}') {
+		if (JSON.stringify(library) !== '{}') {
 			if (value || value === '')
 			{
 				var found = filter(library,value);
@@ -193,8 +218,20 @@
 				text: data[i].title,
 				on: {
 					click: function(){
-						//if click
 						$(this).toggleClass("selected");
+						if ($(this).hasClass("selected")) {
+							for (key in library) {
+								if (this.innerText === library[key].title) {
+									MendeleySDK.API.documents.retrieve(library[key].id + `?view=all`).then(sucsess,failed);
+								}
+							}
+						} else {
+							for (key in citations) {
+								if (citations[key].title === this.innerText) {
+									delete citations[key];
+								}
+							}
+						}
 					},
 					mouseover: function(){
 						$(this).addClass('mouseover');
@@ -210,30 +247,68 @@
 		myscroll.updateScroll(conteiner);
 	};
 
-	
+	function createCitate(item) {
+		var key = ['authored','confirmed','file_attached','hidden','private_publication','read','starred','created','last_modified','profile_id'];
+		for (i = 0; i < key.length; i++) {
+			delete item[key[i]];
+		}
+		var citate = {};
+		for (key in item) {
+			if (typeof item[key] !== 'object') {
+				if (key === 'year') {
+					citate.issued = {};
+					var tmp = [];
+					tmp.push(['' + item[key]]);
+					citate.issued['date-parts'] = tmp;
+					// citate.issued['date-parts'][0][0] = '' + item[key];
+					continue;
+				}
+				if (key === 'pages') {
+					citate['page'] = item[key];
+					continue;
+				}
+				citate[key] = item[key];
+			}
+			if (key === 'websites') {
+				citate.URL = item[key][0];
+			}
+			if (key === 'identifiers') {
+				for (val in item[key]) {
+					citate[val.toUpperCase()] = item[key][val];
+				}
+			}
+			if (key === 'authors') {
+				var tmp = [];
+				for (val in item[key]) {			
+				tmp.push({given: item[key][val]['first_name'] + ' ' + item[key][val]['last_name']});
+				}
+				citate[key] = tmp;
+			}
+		}
+		citations[citate.id] = citate;
+		createPreview(citations);
+	};
 
-	function next() {
+	function createPreview(citations) {
+		var styleDir = 'citeproc-js-simple/styles';
 
-		var styleDir = 'citeproc-js-simple/styles'
-        var style  = 'ieee.csl';
-		var preferredLocale = 'ru-RU';
-
-		var cite = new Citeproc(preferredLocale, styleDir, style, citations, load_style, locales, function (citeproc) {
+		var cite = new Citeproc(preferredLocale, styleDir, style, citations, selectedStyle, locale, function (citeproc) {
 		
 			citeproc.updateItems(Object.keys(citations));
-			console.log('citeproc',citeproc);			
+			// console.log('citeproc',citeproc);			
 			var bibliography = citeproc.makeBibliography();
-			// var citate = citeproc.getCitationLabel(citations['Item-1']);
-			var result = citeproc.makeCitationCluster([citations['Item-1'],citations['Item-2'],citations['Item-3'],citations['Item-4']]);
-			console.log('result',result);			
+			// var citate = citeproc.getCitationLabel(test['Item-1']);
+			// var result = citeproc.makeCitationCluster([test['Item-1'],test['Item-2'],test['Item-3'],test['Item-4']]);
+			// console.log('result',result);			
 			// console.log('citate',citate);
+			console.log('citations',citations);
+			
 			console.log('bibliography',bibliography);
 			
         });
-	};
+	}
 
-	
-	
+
 	function checkInternetExplorer(){
 		var rv = -1;
 		if (window.navigator.appName == 'Microsoft Internet Explorer') {
