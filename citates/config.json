@@ -20,7 +20,8 @@
 
             "isUpdateOleOnResize" : false,
 
-            "buttons"        : [ { "text": "Ok", "primary": true },
+            "buttons"        : [ { "text": "Link", "primary": true },
+                                 { "text": "Bibliography", "primary": true },
                                  { "text": "Cancel", "primary": false } ],
 
             "initOnSelectionChanged" : true

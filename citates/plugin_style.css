@@ -7,13 +7,6 @@ html, body {
   overflow:hidden;
   box-sizing:border-box;
 }
-.noselect {
-  -khtml-user-select: none;
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-touch-action: none;
-}
 label {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -89,19 +82,9 @@ td,th{
 	background-position: center;
 	height:27px;
 }
-.input_error {
-  display: none;
-  float: left;
-  position: relative;
-}
-.input_error:before {
-  content: '';
-  position: absolute;
-  right: 3px;
-  top: 3px;
-  width: 16px;
-  height: 16px;
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuNWWFMmUAAACvSURBVDhPrZNRDoIwEER7COA6HgJPpAnHM4oXQdFE/VDfNrsfpQvGhkneT2dmky40rK77pq6ggx4eyhF2UGnMF4EWBvjMcIFW46nEgLcGl5BMOoSDGmR6EjZNz0GyjdbjALlfFjR5HnRajwNkSVnI5HnQaz0OkE1nIZPnwVPrxQNGrc9f4Qcnra+zxAbKP6OIg/IfyYSxhasGPcTzyyYC9pjO8IIbHGAPy4/pf4XwBSVejZ5wzd0zAAAAAElFTkSuQmCC);
+.csl-entry{
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
 }
 
 /* loader */

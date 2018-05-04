@@ -1,21 +1,21 @@
 (function(window, undefined){
 	
-	var is_init = false,			//init scrollable div flag
-		library,					//user library
-		conteiner,					//conteiner for library list
-		conteiner_2, 				//conteiner for bibliography 
-		myscroll,					//custom scroll
-		implicitGrantFlow,			//mendeley auth flow
-		citations,					//citations 
-		selectedStyle,				//selected style
-		locale,						//selected locale
-		preferredLocale,			//label locale
-		citations = {};				//obj citations;
+	var is_init = false,								//init scrollable div flag
+		library,										//user library
+		conteiner,										//conteiner for library list
+		conteiner_2, 									//conteiner for bibliography 
+		myscroll,										//custom scroll
+		implicitGrantFlow,								//mendeley auth flow
+		selectedStyle = {name: '', value: ''},			//selected style
+		locale = {preferredLocale: '', locale: ''},		//selected locale
+		citations = {},									//obj citations
+		bibliography,									//array bibliography
+		flagRestore = false,							//flag for restore state
+		state;											//current state
 		
 	window.Asc.plugin.init = function (text) {	
 		loadStylesAndLocales('citeproc-js-simple/locales/locales.json', '#select_locale');
 		loadStylesAndLocales('citeproc-js-simple/styles/styles.json', '#select_style');
-		auth();
 		var ref_but = document.getElementById('refresh_button');
 		ref_but.onclick = function() {
 			document.getElementById('loader').style.display ='block';
@@ -62,6 +62,8 @@
 			myscroll.updateScroll(conteiner_2);
 			myscroll.updateScroll(conteiner_2);
 		};
+		restoreState();
+		auth();
 	};
 
 	function loadStylesAndLocales(dir,elem) {
@@ -81,13 +83,28 @@
 				var data = e.params.data;
 				loadSelected(data.id);
 				if (data.id.indexOf('.xml') !== -1) {
-					preferredLocale = data.text.replace('.xml','');
+					locale.preferredLocale = data.text.replace('.xml','');
+				} else {
+					selectedStyle.name = data.text.replace('.csl','');
 				}
 			});
-			var val = $(elem + " option:selected").val();
-			loadSelected(val);
-			if (val.indexOf('.xml') !== -1) {
-				preferredLocale = val.replace('.xml','');
+			if (!flagRestore) {
+				var val = $(elem + " option:selected").val();
+				loadSelected(val);
+				if (val.indexOf('.xml') !== -1) {
+					locale.preferredLocale = val.replace('.xml','');
+				} else {
+					selectedStyle.name = val.replace('.csl','');
+				}
+			} else {
+				if (elem == '#select_locale' && locale.preferredLocale) {
+					$(elem).val(locale.preferredLocale + '.xml');
+					$(elem).trigger('change');
+				} else if (elem == '#select_style' && selectedStyle.name) {
+					$(elem).val(selectedStyle.name + '.csl');
+					$(elem).trigger('change');
+					flagRestore = false;
+				}
 			}
 		});
 	};
@@ -95,20 +112,19 @@
 	function loadSelected(file) {
 		if (file.indexOf('.xml') == -1) {
 			window.Asc.plugin.loadModule('citeproc-js-simple/styles/' + file, function(result){
-				selectedStyle = result;
+				selectedStyle.value = result;
 				if(JSON.stringify(citations) !== '{}') {
 					createPreview(citations);
 				}
 			});
 		} else {
 			window.Asc.plugin.loadModule('citeproc-js-simple/locales/' + file, function(result){
-				locale = result;
+				locale.locale = result;
 				if(JSON.stringify(citations) !== '{}') {
 					createPreview(citations);
 				}
 			});
 		}
-		
 	};
 
 	function auth() {
@@ -121,7 +137,9 @@
 		// var token = implicitGrantFlow.getToken();	//get token
 		MendeleySDK.API.setAuthFlow(implicitGrantFlow);
 		// MendeleySDK.API.profiles.me().then(sucsess,failed);	//get user accaunt info
-		MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed);
+		if (!flagRestore) {
+			MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed);
+		}
 	};
 
 	function sucsess(result) {
@@ -180,7 +198,7 @@
 						for (j in lib[k][prop][i]){
 							if (lib[k][prop][i][j].toLowerCase().indexOf(val) != -1) {
 								newLib[k] = lib[k];
-								k++;
+								k = '' + k++;
 								break;
 							}
 						}
@@ -189,13 +207,13 @@
 					for (i in lib[k][prop]) {
 						if (lib[k][prop][i].toLowerCase().indexOf(val) != -1) {
 							newLib[k] = lib[k];
-							k++;
+							k = '' + k++;
 							break;
 						}
-					}
+					}					
 				} else if ((lib[k][prop]+'').toLowerCase().indexOf(val) != -1) {
 					newLib[k] = lib[k];
-					k++;
+					k = '' + k++;
 					break;
 				}
 			}
@@ -238,6 +256,13 @@
 				}
 			})
 			.appendTo('#conteiner_id1');
+			if (flagRestore) {
+				for (key in state.arrSelected) {
+					if (document.getElementsByClassName('item_list')[i].innerHTML === state.arrSelected[key]) {
+						document.getElementsByClassName('item_list')[i].classList.toggle('selected');
+					}
+				}
+			}
 		}
 		myscroll.updateScroll(conteiner);
 		myscroll.updateScroll(conteiner);
@@ -262,6 +287,10 @@
 					citate['page'] = item[key];
 					continue;
 				}
+				if (key === 'source') {
+					citate['container-title'] = item[key];
+					continue;
+				}
 				citate[key] = item[key];
 			}
 			if (key === 'websites') {
@@ -275,9 +304,9 @@
 			if (key === 'authors') {
 				var tmp = [];
 				for (val in item[key]) {			
-				tmp.push({given: item[key][val]['first_name'] + ' ' + item[key][val]['last_name']});
+				tmp.push({given: item[key][val]['first_name'], family: item[key][val]['last_name']});
 				}
-				citate[key] = tmp;
+				citate['author'] = tmp;
 			}
 		}
 		citations[citate.id] = citate;
@@ -285,16 +314,65 @@
 	};
 
 	function createPreview(citations) {
-		new Citeproc(preferredLocale, citations, selectedStyle, locale, function (citeproc) {
-			citeproc.updateItems(Object.keys(citations));			
-			var bibliography = citeproc.makeBibliography();
-			console.log('bibliography',bibliography);
-			//форматировать текст
-			conteiner_2.innerHTML = bibliography[1].join();
-        });
+		new Citeproc(locale.preferredLocale, citations, selectedStyle.value, locale.locale, function (citeproc) {
+			citeproc.updateItems(Object.keys(citations));
+			if (!flagRestore) {			
+				bibliography = citeproc.makeBibliography();
+			} else {
+				bibliography = state.bibliography;
+			}
+			for (i in bibliography[1]) {
+				conteiner_2.innerHTML = bibliography[1][i];
+				if($('.csl-left-margin').length > 0) {
+					bibliography[1][i] = $('.csl-left-margin').text().replace(/\n/g,'').trim() + "\t" + $('.csl-right-inline').text().replace(/\n/g,'').trim();
+					continue;
+				}
+				bibliography[1][i] = $(conteiner_2).text().replace(/\n/g,'').trim();
+			}		
+			var arrayCitations = [];
+			for (key in citations)
+			{
+				arrayCitations.push(citations[key]);
+			}
+			var cluster = citeproc.makeCitationCluster(arrayCitations);
+			document.getElementById('link_prew').value = cluster.replace(/&#38;/g,'&');
+			$(conteiner_2).addClass('csl-entry');
+			conteiner_2.innerHTML = bibliography[1].join('\n');
+		});
+		myscroll.updateScroll(conteiner_2);
+		myscroll.updateScroll(conteiner_2);
 	};
 
+	function saveState() {
+		var selected = $('.selected');
+		var arrSelected =[];
+		for (i = 0; i < selected.length; i++) {
+			arrSelected.push(selected[i].innerHTML);
+		}
+		bibliography[1] = conteiner_2.innerHTML.split('\n');
+		state = {
+			citations: citations,
+			library: library,
+			selectedStyle: selectedStyle,
+			locale: locale,
+			arrSelected: arrSelected,
+			bibliography: bibliography
+		};
+		localStorage.setItem('Citate_State', JSON.stringify(state));
+	};
 
+	function restoreState() {
+		state = JSON.parse(localStorage.getItem('Citate_State'));
+		if (state) {
+			flagRestore = true;
+			citations = state.citations;
+			library = state.library;
+			selectedStyle = state.selectedStyle;
+			locale = state.locale;
+			createPreview(citations);
+			renderLibrary(library);
+		}
+	}
 	function checkInternetExplorer(){
 		var rv = -1;
 		if (window.navigator.appName == 'Microsoft Internet Explorer') {
@@ -326,13 +404,22 @@
 
 	window.Asc.plugin.button = function(id)
 	{
-		if(id==0)
-		{
-			alert(this.text)
-		}
-		if((id==-1) || (id==1))
-		{
-			this.executeCommand("close", "");
+		switch (id) {
+			case 0:
+				alert(0);
+				saveState();
+				this.executeCommand("close", "");
+				break;
+		
+			case 1:
+				alert(1);
+				saveState();
+				this.executeCommand("close", "");
+				break;
+
+			case 2:
+				this.executeCommand("close", "");
+				break;
 		}
 	};
 

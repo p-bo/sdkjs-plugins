@@ -50,7 +50,7 @@ You can apply your classes to this divs
 				left: "10px",
 				right: "10px",
 				top: "90px",
-				bottom: "5px",
+				bottom: "5px"
 			};
 			for (var i in settings)
 				deffaul_settings[i] = settings[i];
