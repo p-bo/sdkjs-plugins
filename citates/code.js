@@ -321,6 +321,15 @@
 	function createPreview(citations) {
 		new Citeproc(locale.preferredLocale, citations, selectedStyle.value, locale.locale, function (citeproc) {
 			citeproc.updateItems(Object.keys(citations));
+			var arrayCitations = [];
+			for (key in citations)
+			{
+				arrayCitations.push(citations[key]);
+			}
+			var cluster = citeproc.makeCitationCluster(arrayCitations);		
+			conteiner_2.innerHTML = cluster;
+			cluster = $(conteiner_2).text();
+			document.getElementById('link_prew').value = cluster.replace(/&#38;/g,'&');	
 			if (!flagRestore) {			
 				bibliography = citeproc.makeBibliography();
 			} else {
@@ -333,14 +342,7 @@
 					continue;
 				}
 				bibliography[1][i] = $(conteiner_2).text().replace(/\n/g,'').trim();
-			}		
-			var arrayCitations = [];
-			for (key in citations)
-			{
-				arrayCitations.push(citations[key]);
-			}
-			var cluster = citeproc.makeCitationCluster(arrayCitations);
-			document.getElementById('link_prew').value = cluster.replace(/&#38;/g,'&');
+			}			
 			$(conteiner_2).addClass('csl-entry');
 			conteiner_2.innerHTML = bibliography[1].join('\n');
 		});
