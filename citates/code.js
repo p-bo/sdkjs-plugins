@@ -5,7 +5,6 @@
 		conteiner,										//conteiner for library list
 		conteiner_2, 									//conteiner for bibliography 
 		myscroll,										//custom scroll
-		implicitGrantFlow,								//mendeley auth flow
 		selectedStyle = {name: '', value: ''},			//selected style
 		locale = {preferredLocale: '', locale: ''},		//selected locale
 		citations = {},									//obj citations
@@ -138,14 +137,14 @@
 		MendeleySDK.API.setAuthFlow(implicitGrantFlow);
 		// MendeleySDK.API.profiles.me().then(sucsess,failed);	//get user accaunt info
 		if (!flagRestore) {
-			MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed);
+			MendeleySDK.API.documents.retrieve("?view=client&sort=created&order=desc&limit=500").then(sucsess,failed);
 		}
 	};
 
 	function sucsess(result) {
-		// if (result.id) MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed); 
-		//MendeleySDK.API.documents.retrieve(`984e8e01-0fc0-3405-ae36-a17833c9286c?view=all`).then(sucsess,failed);  
-		//MendeleySDK.API.documents.retrieve(`?limit=500&uuid=${result.id}`).then(sucsess,failed);
+		// if (result.id) MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed); // require user library
+		//MendeleySDK.API.documents.retrieve(`984e8e01-0fc0-3405-ae36-a17833c9286c?view=all`).then(sucsess,failed);  	//require iformations about document
+		//MendeleySDK.API.documents.retrieve(`?limit=500&uuid=${result.id}`).then(sucsess,failed);	// another metod to require user library
 		if (result && result.length > 0) {
 			library = result;
 			pasteData();
@@ -157,6 +156,7 @@
 
 	function failed(error) {
 		console.error(error);
+		document.getElementById('loader').style.display ='none';
 	};
 
 	function pasteData(value) {
@@ -235,9 +235,10 @@
 						if ($(this).hasClass("selected")) {
 							for (key in library) {
 								if (this.innerText === library[key].title) {
-									MendeleySDK.API.documents.retrieve(library[key].id + `?view=all`).then(sucsess,failed);
+									MendeleySDK.API.documents.retrieve(library[key].id + "?view=all").then(sucsess,failed);
 								}
 							}
+							state.arrSelected.push(this.innerHTML);
 						} else {
 							for (key in citations) {
 								if (citations[key].title === this.innerText) {
@@ -245,6 +246,10 @@
 									createPreview(citations);
 								}
 							}
+							var val = this.innerHTML;
+							state.arrSelected = state.arrSelected.filter(function(item) {
+								return val != item;
+							});
 						}
 					},
 					mouseover: function(){
@@ -256,7 +261,7 @@
 				}
 			})
 			.appendTo('#conteiner_id1');
-			if (flagRestore) {
+			if (flagRestore || state.arrSelected) {
 				for (key in state.arrSelected) {
 					if (document.getElementsByClassName('item_list')[i].innerHTML === state.arrSelected[key]) {
 						document.getElementsByClassName('item_list')[i].classList.toggle('selected');
@@ -344,26 +349,22 @@
 	};
 
 	function saveState() {
-		var selected = $('.selected');
-		var arrSelected =[];
-		for (i = 0; i < selected.length; i++) {
-			arrSelected.push(selected[i].innerHTML);
-		}
 		bibliography[1] = conteiner_2.innerHTML.split('\n');
 		state = {
 			citations: citations,
 			library: library,
 			selectedStyle: selectedStyle,
 			locale: locale,
-			arrSelected: arrSelected,
+			arrSelected: state.arrSelected,
 			bibliography: bibliography
 		};
 		localStorage.setItem('Citate_State', JSON.stringify(state));
 	};
 
 	function restoreState() {
-		state = JSON.parse(localStorage.getItem('Citate_State'));
-		if (state) {
+		state = localStorage.getItem('Citate_State');
+		if (state && state !== {}) {
+			state = JSON.parse(localStorage.getItem('Citate_State'));
 			flagRestore = true;
 			citations = state.citations;
 			library = state.library;
@@ -371,56 +372,30 @@
 			locale = state.locale;
 			createPreview(citations);
 			renderLibrary(library);
+		} else {
+			state = {};
 		}
-	}
-	function checkInternetExplorer(){
-		var rv = -1;
-		if (window.navigator.appName == 'Microsoft Internet Explorer') {
-			const ua = window.navigator.userAgent;
-			const re = new RegExp('MSIE ([0-9]{1,}[\.0-9]{0,})');
-			if (re.exec(ua) != null) {
-				rv = parseFloat(RegExp.$1);
-			}
-		} else if (window.navigator.appName == 'Netscape') {
-			const ua = window.navigator.userAgent;
-			const re = new RegExp('Trident/.*rv:([0-9]{1,}[\.0-9]{0,})');
-
-			if (re.exec(ua) != null) {
-				rv = parseFloat(RegExp.$1);
-			}
-		}
-		return rv !== -1;
 	};
 
-	function cancelEvent(e){
-		if (e && e.preventDefault) {
-			e.stopPropagation(); // DOM style (return false doesn't always work in FF)
-			e.preventDefault();
-		}
-		else {
-			window.event.cancelBubble = true;//IE stopPropagation
+	function pasteInDocument(id) {
+		var value;
+		if (id == 0) {
+			value = document.getElementById('link_prew').value;
+			window.Asc.plugin.executeMethod("PasteHtml",[value]);
+		} else if (id == 1) {
+			value = conteiner_2.innerHTML.replace(/\t/g,"<span style='mso-tab-count:1'></span>").split('\n');
+			for (key in value) {
+				value[key] = '<p>' + value[key] + '</p>';
+			}
+			window.Asc.plugin.executeMethod("PasteHtml",[ value.join('')]);
 		}
 	};
 
 	window.Asc.plugin.button = function(id)
 	{
-		switch (id) {
-			case 0:
-				alert(0);
-				saveState();
-				this.executeCommand("close", "");
-				break;
-		
-			case 1:
-				alert(1);
-				saveState();
-				this.executeCommand("close", "");
-				break;
-
-			case 2:
-				this.executeCommand("close", "");
-				break;
-		}
+		saveState();
+		pasteInDocument(id);
+		this.executeCommand("close", "");
 	};
 
 })(window, undefined);
