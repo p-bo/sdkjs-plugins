@@ -82,18 +82,18 @@
 				var data = e.params.data;
 				loadSelected(data.id);
 				if (data.id.indexOf('.xml') !== -1) {
-					locale.preferredLocale = data.text.replace('.xml','');
+					locale.preferredLocale = data.text;
 				} else {
-					selectedStyle.name = data.text.replace('.csl','');
+					selectedStyle.name = data.text;
 				}
 			});
 			if (!flagRestore) {
 				var val = $(elem + " option:selected").val();
 				loadSelected(val);
 				if (val.indexOf('.xml') !== -1) {
-					locale.preferredLocale = val.replace('.xml','');
+					locale.preferredLocale = val;
 				} else {
-					selectedStyle.name = val.replace('.csl','');
+					selectedStyle.name = val;
 				}
 			} else {
 				if (elem == '#select_locale' && locale.preferredLocale) {
@@ -319,7 +319,8 @@
 	};
 
 	function createPreview(citations) {
-		new Citeproc(locale.preferredLocale, citations, selectedStyle.value, locale.locale, function (citeproc) {
+		// if send like locale.preferredLocale ("pt-BR, fr-CA, es-MX, es-CL, de-CH, de-AT, zh-TW")
+		new Citeproc(citations, selectedStyle.value, locale.locale, function (citeproc) {
 			citeproc.updateItems(Object.keys(citations));
 			var arrayCitations = [];
 			for (key in citations)

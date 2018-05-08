@@ -1,19 +1,16 @@
-function Citeproc (preferredLocale, citations, style, mylocales, done) {
+function Citeproc (citations, style, mylocales, done) {
    
     var citeproc,
     sys,
     locales = {},
-    localeIDs = [];
-    localeIDs.push('en-US');
-    localeIDs.push(preferredLocale);
+    localeIDs = ['en-US', 'en-US'];
     locales[localeIDs[0]] = mylocales;
     locales[localeIDs[1]] = mylocales;
-    
     // Constructs the wrapper
     this.construct = function () {
         var self = this;
         self.setupSys();
-        citeproc = new CSL.Engine(sys, style, preferredLocale, preferredLocale);
+        citeproc = new CSL.Engine(sys, style, 'en-US', 'en-US');
         done(citeproc);
     };
 
