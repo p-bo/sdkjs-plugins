@@ -86,6 +86,16 @@ td,th{
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
 }
+.auth_frame {
+	width: 100%;
+	height: 100%;
+	border: 1px solid;
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+	left: 0px;
+	display: none;
+}
 
 /* loader */
 .cssload-container{

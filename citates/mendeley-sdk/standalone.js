@@ -10261,8 +10261,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var url = typeof settings.apiAuthenticateUrl === 'function' ?
 	        settings.apiAuthenticateUrl() : settings.apiAuthenticateUrl;
 
-	    clearAccessTokenCookie();
-	    settings.win.location = url;
+		clearAccessTokenCookie();
+		$("#auth_frame").show();
+		var frame = document.getElementById('auth_frame');
+		frame.src = url;
+		frame.onload = function () {
+			if ($("#auth_frame").context.cookie.indexOf('accessToken') != -1) {
+				$("#auth_frame").hide();
+				$('#refresh_button').trigger('click');
+			}
+		};
 	}
 
 	function getAccessTokenCookieOrUrl() {

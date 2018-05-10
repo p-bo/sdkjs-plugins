@@ -1,5 +1,4 @@
 (function(window, undefined){
-	
 	var is_init = false,								//init scrollable div flag
 		library,										//user library
 		conteiner,										//conteiner for library list
@@ -10,6 +9,7 @@
 		citations = {},									//obj citations
 		bibliography,									//array bibliography
 		flagRestore = false,							//flag for restore state
+		arrSelected = [],									//array selected items in library
 		state;											//current state
 		
 	window.Asc.plugin.init = function (text) {	
@@ -129,7 +129,7 @@
 	function auth() {
 		const SETTINGS = {
 			clientId: 5468,
-			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citates/index.html'
+			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citates/index2.html'
 		};
 		implicitGrantFlow = MendeleySDK.Auth.implicitGrantFlow(SETTINGS);
 		// implicitGrantFlow.authenticate();			//force autentification
@@ -163,7 +163,7 @@
 		if (JSON.stringify(library) !== '{}') {
 			if (value || value === '')
 			{
-				var found = filter(library,value);
+				var found = filter(library, value);
 				if (JSON.stringify(found) === '{}')
 				{
 					$('label.item_list').remove();
@@ -238,7 +238,7 @@
 									MendeleySDK.API.documents.retrieve(library[key].id + "?view=all").then(sucsess,failed);
 								}
 							}
-							state.arrSelected.push(this.innerHTML);
+							arrSelected.push(this.innerHTML);
 						} else {
 							for (key in citations) {
 								if (citations[key].title === this.innerText) {
@@ -247,7 +247,7 @@
 								}
 							}
 							var val = this.innerHTML;
-							state.arrSelected = state.arrSelected.filter(function(item) {
+							arrSelected = arrSelected.filter(function(item) {
 								return val != item;
 							});
 						}
@@ -261,10 +261,13 @@
 				}
 			})
 			.appendTo('#conteiner_id1');
-			if (flagRestore || state.arrSelected) {
-				for (key in state.arrSelected) {
-					if (document.getElementsByClassName('item_list')[i].innerHTML === state.arrSelected[key]) {
-						document.getElementsByClassName('item_list')[i].classList.toggle('selected');
+		}
+		if (flagRestore || arrSelected.length != 0) {
+			var tempArr = document.getElementsByClassName('item_list');
+			for (key in arrSelected) {
+				for (i in tempArr) {
+					if (tempArr[i].innerHTML === arrSelected[key]) {
+						tempArr[i].classList.toggle('selected');
 					}
 				}
 			}
@@ -358,7 +361,7 @@
 			library: library,
 			selectedStyle: selectedStyle,
 			locale: locale,
-			arrSelected: state.arrSelected,
+			arrSelected: arrSelected,
 			bibliography: bibliography
 		};
 		localStorage.setItem('Citate_State', JSON.stringify(state));
@@ -373,10 +376,17 @@
 			library = state.library;
 			selectedStyle = state.selectedStyle;
 			locale = state.locale;
+			arrSelected = state.arrSelected;
 			createPreview(citations);
 			renderLibrary(library);
 		} else {
 			state = {};
+			arrSelected = [];
+			citations = {};
+			bibliography = [];
+			document.getElementById('link_prew').value = '';
+			conteiner_2.innerHTML = '';
+			conteiner.innerHTML = '';
 		}
 	};
 
@@ -396,9 +406,16 @@
 
 	window.Asc.plugin.button = function(id)
 	{
-		saveState();
-		pasteInDocument(id);
-		this.executeCommand("close", "");
+		if (id == 2) {
+			localStorage.removeItem("Citate_State");
+			restoreState();
+			implicitGrantFlow.authenticate();
+			// this.executeCommand("close", "");
+		} else {
+			saveState();
+			pasteInDocument(id);
+			this.executeCommand("close", "");
+		}
 	};
 
 })(window, undefined);
