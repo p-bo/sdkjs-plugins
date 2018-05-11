@@ -9,10 +9,10 @@
 		citations = {},									//obj citations
 		bibliography,									//array bibliography
 		flagRestore = false,							//flag for restore state
-		arrSelected = [],									//array selected items in library
+		arrSelected = [],								//array selected items in library
 		state;											//current state
 		
-	window.Asc.plugin.init = function (text) {	
+	window.Asc.plugin.init = function () {	
 		loadStylesAndLocales('citeproc-js-simple/locales/locales.json', '#select_locale');
 		loadStylesAndLocales('citeproc-js-simple/styles/styles.json', '#select_style');
 		var ref_but = document.getElementById('refresh_button');
@@ -129,12 +129,12 @@
 	function auth() {
 		const SETTINGS = {
 			clientId: 5468,
-			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citates/index2.html'
+			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citations/index2.html'
 		};
 		implicitGrantFlow = MendeleySDK.Auth.implicitGrantFlow(SETTINGS);
 		// implicitGrantFlow.authenticate();			//force autentification
 		// var token = implicitGrantFlow.getToken();	//get token
-		MendeleySDK.API.setAuthFlow(implicitGrantFlow);
+		MendeleySDK.API.setAuthFlow(implicitGrantFlow);		//set auth flow
 		// MendeleySDK.API.profiles.me().then(sucsess,failed);	//get user accaunt info
 		if (!flagRestore) {
 			MendeleySDK.API.documents.retrieve("?view=client&sort=created&order=desc&limit=500").then(sucsess,failed);
@@ -155,7 +155,7 @@
 	};
 
 	function failed(error) {
-		console.error(error);
+		console.info(error);
 		document.getElementById('loader').style.display ='none';
 	};
 
@@ -322,7 +322,6 @@
 	};
 
 	function createPreview(citations) {
-		// if send like locale.preferredLocale ("pt-BR, fr-CA, es-MX, es-CL, de-CH, de-AT, zh-TW")
 		new Citeproc(citations, selectedStyle.value, locale.locale, function (citeproc) {
 			citeproc.updateItems(Object.keys(citations));
 			var arrayCitations = [];
@@ -410,11 +409,14 @@
 			localStorage.removeItem("Citate_State");
 			restoreState();
 			implicitGrantFlow.authenticate();
-			// this.executeCommand("close", "");
-		} else {
+		} else if ($("#auth_frame")[0].style.display == 'none' || $("#auth_frame")[0].style.display == '') {
 			saveState();
 			pasteInDocument(id);
 			this.executeCommand("close", "");
+		} else if (id == 3 || id == -1){
+			this.executeCommand("close", "");			
+		} else {
+			alert('First you need to log in to Mendeley');
 		}
 	};
 

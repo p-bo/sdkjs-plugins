@@ -10,6 +10,7 @@ function Citeproc (citations, style, mylocales, done) {
     this.construct = function () {
         var self = this;
         self.setupSys();
+        // if send like locale.preferredLocale ("pt-BR, fr-CA, es-MX, es-CL, de-CH, de-AT, zh-TW"), then opening the print form
         citeproc = new CSL.Engine(sys, style, 'en-US', 'en-US');
         done(citeproc);
     };

@@ -10263,14 +10263,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		clearAccessTokenCookie();
 		$("#auth_frame").show();
-		var frame = document.getElementById('auth_frame');
-		frame.src = url;
-		frame.onload = function () {
+		$("#auth_frame")[0].src = url;
+		$("#auth_frame").load(function () {
 			if ($("#auth_frame").context.cookie.indexOf('accessToken') != -1) {
 				$("#auth_frame").hide();
 				$('#refresh_button').trigger('click');
 			}
-		};
+		});
 	}
 
 	function getAccessTokenCookieOrUrl() {
@@ -10291,8 +10290,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return hash;
 	        }
 	        return cookie;
-	    }
-
+		}
+		
 	    return '';
 	}
 
