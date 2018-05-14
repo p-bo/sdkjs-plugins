@@ -1,0 +1,49 @@
+html, body {
+  height: 100%;
+  flex-flow: column;
+  width: 100%;
+  margin: 0;				
+  padding:10px 10px 15px;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+p {
+	font-size: 1em;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+select {
+	font-size: 1em;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border: 1px solid #D8DADC;
+	outline: none;
+}
+select::selection {
+  background: #D8DADC; /* WebKit/Blink Browsers */
+}
+select::-moz-selection {
+  background: #D8DADC; /* Gecko Browsers */
+}
+select:focus > option:checked { 
+  background: #D8DADC !important;
+}
+.micro {
+	/* position: absolute; */
+	left: 0;
+	top: 30px;
+}
+
+div::selection {
+  background: #D8DADC; /* WebKit/Blink Browsers */
+}
+div::-moz-selection {
+  background: #D8DADC; /* Gecko Browsers */
+}
+img {
+	cursor: pointer;
+}
+.final {
+	color: red;
+}
+.interim {
+	color: green;
+}
