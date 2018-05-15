@@ -1,13 +1,10 @@
 (function(window, undefined){
 			
 	window.Asc.plugin.init = function () {
-		var start_button = document.getElementById('start_button');
-		var start_img = document.getElementById('start_img');
-		var select_language = document.getElementById('select_language');
 		// If you modify this array, also update default language / dialect below.
 		var langs =
-		[['Afrikaans',       ['af-ZA']],
-		['አማርኛ',           ['am-ET']],
+		[['Afrikaans',      ['af-ZA']],
+		['አማርኛ',        	['am-ET']],
 		['Azərbaycanca',    ['az-AZ']],
 		['বাংলা',            ['bn-BD', 'বাংলাদেশ'],
 							['bn-IN', 'ভারত']],
@@ -54,28 +51,28 @@
 		['Français',        ['fr-FR']],
 		['Basa Jawa',       ['jv-ID']],
 		['Galego',          ['gl-ES']],
-		['ગુજરાતી',           ['gu-IN']],
+		['ગુજરાતી',          ['gu-IN']],
 		['Hrvatski',        ['hr-HR']],
 		['IsiZulu',         ['zu-ZA']],
 		['Íslenska',        ['is-IS']],
 		['Italiano',        ['it-IT', 'Italia'],
 							['it-CH', 'Svizzera']],
-		['ಕನ್ನಡ',             ['kn-IN']],
-		['ភាសាខ្មែរ',          ['km-KH']],
+		['ಕನ್ನಡ',            ['kn-IN']],
+		['ភាសាខ្មែរ',         ['km-KH']],
 		['Latviešu',        ['lv-LV']],
 		['Lietuvių',        ['lt-LT']],
-		['മലയാളം',          ['ml-IN']],
-		['मराठी',             ['mr-IN']],
+		['മലയാളം',       ['ml-IN']],
+		['मराठी',            ['mr-IN']],
 		['Magyar',          ['hu-HU']],
-		['ລາວ',              ['lo-LA']],
+		['ລາວ',             ['lo-LA']],
 		['Nederlands',      ['nl-NL']],
-		['नेपाली भाषा',        ['ne-NP']],
+		['नेपाली भाषा',       ['ne-NP']],
 		['Norsk bokmål',    ['nb-NO']],
 		['Polski',          ['pl-PL']],
 		['Português',       ['pt-BR', 'Brasil'],
 							['pt-PT', 'Portugal']],
 		['Română',          ['ro-RO']],
-		['සිංහල',          ['si-LK']],
+		['සිංහල',            ['si-LK']],
 		['Slovenščina',     ['sl-SI']],
 		['Basa Sunda',      ['su-ID']],
 		['Slovenčina',      ['sk-SK']],
@@ -83,23 +80,23 @@
 		['Svenska',         ['sv-SE']],
 		['Kiswahili',       ['sw-TZ', 'Tanzania'],
 							['sw-KE', 'Kenya']],
-		['ქართული',       ['ka-GE']],
-		['Հայերեն',          ['hy-AM']],
-		['தமிழ்',            ['ta-IN', 'இந்தியா'],
+		['ქართული',        ['ka-GE']],
+		['Հայերեն',         ['hy-AM']],
+		['தமிழ்',          ['ta-IN', 'இந்தியா'],
 							['ta-SG', 'சிங்கப்பூர்'],
 							['ta-LK', 'இலங்கை'],
 							['ta-MY', 'மலேசியா']],
-		['తెలుగు',           ['te-IN']],
+		['తెలుగు',          ['te-IN']],
 		['Tiếng Việt',      ['vi-VN']],
 		['Türkçe',          ['tr-TR']],
 		['اُردُو',            ['ur-PK', 'پاکستان'],
 							['ur-IN', 'بھارت']],
-		['Ελληνικά',         ['el-GR']],
-		['български',         ['bg-BG']],
-		['Pусский',          ['ru-RU']],
-		['Српски',           ['sr-RS']],
-		['Українська',        ['uk-UA']],
-		['한국어',            ['ko-KR']],
+		['Ελληνικά',        ['el-GR']],
+		['български',       ['bg-BG']],
+		['Pусский',         ['ru-RU']],
+		['Српски',          ['sr-RS']],
+		['Українська',      ['uk-UA']],
+		['한국어',           ['ko-KR']],
 		['中文',             ['cmn-Hans-CN', '普通话 (中国大陆)'],
 							['cmn-Hans-HK', '普通话 (香港)'],
 							['cmn-Hant-TW', '中文 (台灣)'],
@@ -119,7 +116,7 @@
 		
 		select_language.onchange = function() {
 			updateCountry();
-		}
+		};
 
 		function updateCountry() {
 			for (var i = select_dialect.options.length - 1; i >= 0; i--) {
@@ -145,6 +142,8 @@
 			recognition.interimResults = true;
 
 			recognition.onstart = function() {
+				select_language.disabled = true;
+				select_dialect.disabled = true;
 				recognizing = true;
 				showInfo('info_speak_now');
 				start_img.src = 'mic_src/mic-animate.gif';
@@ -164,15 +163,17 @@
 				if (event.error == 'not-allowed') {
 					if (event.timeStamp - start_timestamp < 100) {
 						showInfo('info_blocked');
-				} else {
-					showInfo('info_denied');
-				}
-				ignore_onend = true;
+					} else {
+						showInfo('info_denied');
+					}
+					ignore_onend = true;
 				}
 			};
 
 			recognition.onend = function() {
 				recognizing = false;
+				select_language.disabled = false;
+				select_dialect.disabled = false;;
 				if (ignore_onend) {
 					return;
 				}
@@ -181,8 +182,9 @@
 					showInfo('info_start');
 					return;
 				}
-				console.log(final_transcript);
-				showInfo('');
+				showInfo('info_start');
+				// console.log(final_transcript.split('\n'));
+				// showInfo('');
 				// if (window.getSelection) {
 				// 	window.getSelection().removeAllRanges();
 				// 	// var range = document.createRange();
@@ -193,6 +195,7 @@
 
 			recognition.onresult = function(event) {
 				var interim_transcript = '';
+				final_transcript = '';
 				if (typeof(event.results) == 'undefined') {
 					recognition.onend = null;
 					recognition.stop();
@@ -207,30 +210,35 @@
 					}
 				}
 				final_transcript = capitalize(final_transcript);
-				final_span.innerHTML = linebreak(final_transcript);
+				// final_span.innerHTML = linebreak(final_transcript);
+				if (event.results[0].isFinal) {
+					window.Asc.plugin.executeMethod("PasteHtml",[linebreak(final_transcript)]);
+				}
 				interim_span.innerHTML = linebreak(interim_transcript);
 			};
-		}
+		};
 
 		function upgrade() {
 			start_button.style.visibility = 'hidden';
 			select_language.style.visibility = 'hidden';
 			select_dialect.style.visibility = 'hidden';
-			paste_button.style.visibility = 'hidden';
 			showInfo('info_upgrade');
-		}
+		};
 
-		var two_line = /\n\n/g;
-		var one_line = /\n/g;
+		const paragraph = '<!--StartFragment--><p style="margin-top:0pt;margin-bottom:9.999977952755906pt;border:none;mso-border-left-alt:none;mso-border-top-alt:none;mso-border-right-alt:none;mso-border-bottom-alt:none;mso-border-between:none" class="docData;DOCY;v5;1177;BAiAAgAABoQCAAAD3AIAAAXqAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUAAAAAE8AAAABGAAAAAEGAAAAAAkGAAAAABoGAAAAABsGAAAAAAItAAAABQoAAAABAAAAAAgAAAAABQoAAAABAAAAAAgAAAAABQoAAAABAAAAAAgAAAAACgAAAAAAAAAAEQAAAACrAQAAAOIAAAAAAQABBhIAAAACBQAAAAADBQAAAAAEBQAAAAAFAQEGAQAHAQAIAQAJBhsAAAAKBTfBAQALAQEcAQAMBQAAAAAdAQANBQliBQAOBg4AAAAAAQEBA////wIGAAAAABkBARsGfQAAAAAUAAAAAAMAAAABBQAAAAACBeZEAAADAQABFAAAAAADAAAAAQUAAAAAAgXmRAAAAwEAAhQAAAAAAwAAAAEFAAAAAAIF5kQAAAMBAAMUAAAAAAMAAAABBQAAAAACBeZEAAADAQALFAAAAAADAAAAAQUAAAAAAgXmRAAAAwEAAboAAAAAAQABAQACAQADAQAEBgoAAABBAHIAaQBhAGwABQYKAAAAQQByAGkAYQBsAAcGCgAAAEEAcgBpAGEAbAAGBgoAAABBAHIAaQBhAGwACAQWAAAACgEADAEADgUAAAAADwEAEAEAEQEAEgUAAAAAFAEAFQEAFgQWAAAAFwEAGAEAGQYKAAAAZQBuAC0AVQBTABoGCgAAAGEAcgAtAFMAQQAbBgoAAABlAG4ALQBVAFMAHAYCAAAAAAAeAQACAAAAAA==">&nbsp;</p><!--EndFragment-->'; 
+		const two_line = /\n\n/g;
+		const one_line = /\n/g;
 		function linebreak(s) {
-			return s.replace(two_line, '<p></p>').replace(one_line, '</p><p>');
-		}
+			if (s.indexOf('\n') !== -1) {
+				s = s.substr(1);
+			}
+			return s.replace(two_line, paragraph).replace(one_line, paragraph);
+		};
 
-		var first_char = /\S/;
+		const first_char = /\S/;
 		function capitalize(s) {
 			return s.replace(first_char, function(m) { return m.toUpperCase(); });
-		}
-
+		};
 
 		start_button.onclick = function(event) {
 			if (recognizing) {
@@ -241,12 +249,12 @@
 			recognition.lang = select_dialect.value;
 			recognition.start();
 			ignore_onend = false;
-			final_span.innerHTML = '';
+			// final_span.innerHTML = '';
 			interim_span.innerHTML = '';
 			start_img.src = 'mic_src/mic-slash.gif';
 			showInfo('info_allow');
 			start_timestamp = event.timeStamp;
-		}
+		};
 
 		function showInfo(s) {
 			if (s) {
@@ -259,8 +267,7 @@
 			} else {
 				info.style.visibility = 'hidden';
 			}
-		}
+		};
 	};
-
 
 })(window, undefined);

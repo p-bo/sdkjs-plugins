@@ -15,14 +15,14 @@
             "isModal"         : false,
             "isInsideMode"    : true,
 
-            "initDataType"    : "text",
+            "initDataType"    : "",
             "initData"        : "",
 
             "isUpdateOleOnResize" : false,
 
             "buttons"        : [ ],
 
-            "initOnSelectionChanged" : true
+            "initOnSelectionChanged" : false
         }
     ]
 }
