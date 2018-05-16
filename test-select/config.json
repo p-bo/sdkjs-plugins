@@ -1,0 +1,28 @@
+{
+    "name" : "Test",
+    "guid" : "asc.{BE5CBF95-C0AD-4842-B157-AC40FEDD9447}",
+
+    "variations" : [
+        {
+            "description" : "Test",
+            "url"         : "index.html",
+
+            "icons"           : ["icon.png", "icon@2x.png", "icon.png", "icon@2x.png"],
+            "isViewer"        : true,
+            "EditorsSupport"  : ["word","cell"],
+
+            "isVisual"        : true,
+            "isModal"         : true,
+            "isInsideMode"    : false,
+
+            "initDataType"    : "",
+            "initData"        : "",
+
+            "isUpdateOleOnResize" : false,
+
+            "buttons"        : [ ],
+
+            "initOnSelectionChanged" : false
+        }
+    ]
+}
