@@ -5,6 +5,7 @@
 		<title>Speech input</title>
 		<link rel="stylesheet" href="../plugins.css">
 		<link rel="stylesheet" href="plugin_style.css">
+		<link rel="stylesheet" href="custom_select/custom_select.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 		<script src="../pluginBase.js"></script>
 		<script src="code.js"></script>
@@ -36,17 +37,31 @@
 				Web Speech API is not supported by this browser. Upgrade to Chrome version 25 or later.
 			</p>
 		</div>
-		<div class="div_start">
-			<button id="start_button">
-				<img alt="Start" id="start_img" src="mic_src/mic.gif">
-			</button>
-			<div class="div_language">
-					<select id="select_language"></select>
-					<select id="select_dialect"></select>
+		<div style="display:flex;flex-flow:column;">
+			<div class="div_start">
+				<button id="start_button" class='img_btn'>
+					<img alt="Start" id="start_img" src="mic_src/mic.png" class="start_img">
+				</button>
+				<div class="div_language">
+						<div class="custom_select">
+								<div class="div_input">
+									<input id="custom_input" type="text" class="inputtt">
+									<button id="m_button" type="button" class="btnnn">v</button>
+								</div>
+								<ul id="custom_menu" class="ulll"></ul>
+						</div>
+						<div id='dialect' class="custom_select">
+								<div class="div_input">
+									<input id="custom_input2" type="text" class="inputtt">
+									<button id="m_button2" type="button" class="btnnn">v</button>
+								</div>
+								<ul id="custom_menu2" class="ulll"></ul>
+						</div>
+				</div>
 			</div>
-		</div>
-		<div id="results">
-			<!-- <span class="final" id="final_span"></span> --> <span class="interim" id="interim_span"></span> 
+			<div id="results" style="margin-top:10px;">
+				<!-- <span class="final" id="final_span"></span> --> <span class="interim" id="interim_span"></span> 
+			</div>
 		</div>
 	</body>
 </html>	

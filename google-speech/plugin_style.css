@@ -40,15 +40,21 @@ select:focus > option:checked {
   -moz-user-select: none;
   -webkit-user-select: none;
 }
-button {
+.img_btn {
   background-color: #fff;
   border: 1px solid #7d858c;
   border-radius: 2px;
   outline: none;
   cursor: pointer;
 }
+.start_img {
+  max-width: 45px;
+  max-height: 45px;
+}
 .div_start {
+  padding-top: 10px;
   display: flex;
+  padding-left: calc(50% - 127px);
 }
 .div_language {
   display: flex;

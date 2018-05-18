@@ -1,15 +1,16 @@
 (function(){
 
-	var data = ['one', 'two'],
+	
 	btn_flag = false,
 	arr;
-	initializeScrolldata();
-		function initializeScrolldata () {
-			for (i in data) {
+	initializeScrolldata(data);
+		function initializeScrolldata (data) {
+			for (var i = 0; i < data.length; i++) {
 				$('<li>',{
 					id: i,
+					value: i,
 					class: 'liii',
-					text: data[i],
+					text: data[i][0],
 					hover: function () {
 						$(this).toggleClass('hoverrr');
 					},

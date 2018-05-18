@@ -18,9 +18,6 @@
   overflow: hidden;
 }
 .btnnn {
-  position: fixed;
-  top: 9px;
-  left: 156px;
   background-color: #fff;
   cursor: pointer;
   border: 1px solid transparent;
@@ -31,13 +28,16 @@
   outline: none;
 }
 .div_input {
+  display: flex;
   height: 20px;
   width: 171px;
   border: 1px solid;
   border-color: rgba(0, 0, 0, 0.15);
 }
 .inputtt {
-  width: 147px;
+  font-size: 0.9em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 150px;
   border: none;
   outline: none;
 }
@@ -45,6 +45,8 @@
   width: fit-content;
 }
 .liii {
+  font-size: 1.15em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   max-width: 100%;
   min-width: 100%;
   cursor: pointer;
