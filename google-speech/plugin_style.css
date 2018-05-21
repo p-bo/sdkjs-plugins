@@ -11,12 +11,6 @@ p {
 	font-size: 1em;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-select {
-	font-size: 1.1em;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	border: 1px solid #D8DADC;
-	outline: none;
-}
 select::selection {
   background: #D8DADC; /* WebKit/Blink Browsers */
 }
