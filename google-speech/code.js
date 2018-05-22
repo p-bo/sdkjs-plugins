@@ -93,7 +93,7 @@
 							['ur-IN', 'بھارت']],
 		['Ελληνικά',        ['el-GR']],
 		['български',       ['bg-BG']],
-		['Pусский',         ['ru-RU']],
+		['Русский',         ['ru-RU']],
 		['Српски',          ['sr-RS']],
 		['Українська',      ['uk-UA']],
 		['한국어',           ['ko-KR']],
@@ -144,10 +144,11 @@
 			dialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
 		};
 
-		var final_transcript = '';
-		var recognizing = false;
-		var ignore_onend;
-		var start_timestamp;
+		var final_transcript = '',
+		recognizing = false,
+		ignore_onend,
+		start_timestamp;
+
 		if (!('webkitSpeechRecognition' in window)) {
 			upgrade();
 		} else {
@@ -284,6 +285,7 @@
 		var btn_flag = false,
 		list_lang, 
 		list_dialect;
+	
 		initializeScrolldata(langs);
 		function initializeScrolldata (data) {
 			for (var i = 0; i < data.length; i++) {
@@ -331,12 +333,10 @@
 				$('.ps__scrollbar-y').css('border-width', '1px');
 			}
 			if($('.ps__scrollbar-x').width() === 0){
-				$('.ps__scrollbar-x').css('visibility', 'hidden');
-				$('.ps__scrollbar-x').css('border-width', '0px');
+				$('.ps__scrollbar-x-rail').css('display', 'none');
 			}
 			else{
-				$('.ps__scrollbar-x').css('visibility', 'visible');
-				$('.ps__scrollbar-x').css('border-width', '1px');
+				$('.ps__scrollbar-x-rail').css('display', 'block');				
 			}
 		};
 
@@ -347,16 +347,15 @@
 				updateScroll();
 				updateScroll();
 				custom_input.focus();
-				setRange(custom_input.value.length, custom_input.value.length);
+				setRange(custom_input.value.length, custom_input.value.length, custom_menu, custom_input);
 			} else {
 				$('#custom_menu.arrow_hover').removeClass('arrow_hover');
 				if ($('#custom_menu .selecteddd').length > 0) {
 					custom_input.value = $('#custom_menu .selecteddd').text();
 				}
-				custom_menu.style.display = 'none';	
-				// updateCountry();
-							
+				custom_menu.style.display = 'none';			
 			}
+			custom_menu2.style.display = 'none';
 			btn_flag = true;
 		};
 
@@ -367,15 +366,13 @@
 				updateScroll();
 				updateScroll();
 				custom_input2.focus();
-				setRange(custom_input2.value.length, custom_input2.value.length);
+				setRange(custom_input2.value.length, custom_input2.value.length, custom_menu2, custom_input2);
 			} else {
 				$('#custom_menu2 .arrow_hover').removeClass('arrow_hover');
 				if ($('#custom_menu2 .selecteddd').length > 0) {
 					custom_input2.value = $('#custom_menu2 .selecteddd').text();
 				}
-				custom_menu2.style.display = 'none';	
-				// updateCountry();
-							
+				custom_menu2.style.display = 'none';		
 			}
 			btn_flag = true;
 		};
@@ -414,7 +411,7 @@
 			if (flag) {
 				return;
 			}
-			if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 8 || event.keyCode == 46) {
+			if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 8 || event.keyCode == 46 || event.keyCode == 13) {
 				custom_menu.style.display = 'block';
 				updateScroll();
 				updateScroll();
@@ -431,7 +428,7 @@
 				if (list_lang[i].innerHTML.toLowerCase().substr(0, value.length) == value) {
 					custom_menu.scrollTop = list_lang[i].offsetTop;
 					custom_input.value = list_lang[i].innerHTML;
-					setRange(value.length, custom_input.value.length)
+					setRange(value.length, custom_input.value.length, custom_menu, custom_input);
 					$(list_lang[i]).addClass("selecteddd");
 					updateScroll();
 					updateScroll();
@@ -446,7 +443,6 @@
 			}
 			if (event.keyCode == 38 || event.keyCode == 40 || event.keyCode == 8 || event.keyCode == 46) {
 				custom_menu2.style.display = 'block';
-				custom_menu2.scrollTop = 0;
 				updateScroll();
 				updateScroll();
 				return;
@@ -460,7 +456,7 @@
 				if (list_dialect[i].innerHTML.toLowerCase().substr(0, value.length) == value) {
 					custom_menu2.scrollTop = list_dialect[i].offsetTop;
 					custom_input2.value = list_dialect[i].innerHTML;
-					setRange(value.length, custom_input2.value.length)
+					setRange(value.length, custom_input2.value.length, custom_menu2, custom_input2);
 					$(list_dialect[i]).addClass("selecteddd");
 					break;
 				}
@@ -468,7 +464,6 @@
 			updateScroll();
 			updateScroll();
 		};
-
 
 		window.addEventListener('keyup', function(event) {
 			var element_menu = (custom_menu.style.display == 'block') ? custom_menu : custom_menu2;
@@ -485,7 +480,7 @@
 						} else if ($(text_menu + ' .selecteddd').length > 0) {
 							element_input.value = $(text_menu + ' .selecteddd').text();
 						}
-						setRange(element_input.value.length, element_input.value.length);
+						setRange(element_input.value.length, element_input.value.length, element_menu, element_input);
 						element_menu.style.display = 'none';
 						$(text_menu + ' .arrow_hover').removeClass('arrow_hover');
 						if (element_menu == custom_menu) {
@@ -527,7 +522,8 @@
 						break;
 
 					case 9:
-						setRange(element_input.value.length, element_input.value.length);
+						setRange(element_input.value.length, element_input.value.length, element_menu, element_input);
+						break;
 				}
 			}
 		}, false);
@@ -536,7 +532,6 @@
 			if (!btn_flag) {
 				if ($('#custom_menu .selecteddd').length > 0) {
 					custom_input.value = $('#custom_menu .selecteddd').text();
-					// updateCountry();
 				}
 				$('#custom_menu .arrow_hover').removeClass('arrow_hover');
 				custom_menu.style.display = 'none';
@@ -550,9 +545,7 @@
 			btn_flag = false;
 		}, false);
 
-		function setRange(start, end) {
-			var element_menu = (custom_menu.style.display == 'block') ? custom_menu : custom_menu2;
-			var element_input = (element_menu == custom_menu) ? custom_input : custom_input2;
+		function setRange(start, end, element_menu, element_input) {
 			if (element_menu.style.display == 'block')
 			if (element_input.setSelectionRange) {
 				element_input.focus(); element_input.setSelectionRange(start, end); /* WebKit */
