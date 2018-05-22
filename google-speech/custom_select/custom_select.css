@@ -70,7 +70,7 @@ input::-moz-selection {
   background: #D8DADC; /* Gecko Browsers */
 }
 .control_down {
-  background-image: url(http://127.0.0.1:8001/web-apps/apps/common/main/resources/img/controls/common-controls.png);
+  background-image: url(../../../web-apps/apps/common/main/resources/img/controls/common-controls.png);
   background-repeat: no-repeat;
   width: 7px;
   height: 7px;

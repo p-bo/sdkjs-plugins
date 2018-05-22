@@ -1,6 +1,6 @@
 (function(window, undefined){
 
-	window.Asc.plugin.init = function () {
+	window.Asc.plugin.init = function() {
 		// If you modify this array, also update default language / dialect below.
 		var langs =
 		[['Afrikaans',      ['af-ZA']],
@@ -197,14 +197,6 @@
 					return;
 				}
 				showInfo('info_start');
-				// console.log(final_transcript.split('\n'));
-				// showInfo('');
-				// if (window.getSelection) {
-				// 	window.getSelection().removeAllRanges();
-				// 	// var range = document.createRange();
-				// 	// range.selectNode(document.getElementById('final_span'));
-				// 	// window.getSelection().addRange(range);
-				// }
 			};
 
 			recognition.onresult = function(event) {
@@ -224,7 +216,6 @@
 					}
 				}
 				final_transcript = capitalize(final_transcript);
-				// final_span.innerHTML = linebreak(final_transcript);
 				if (event.results[0].isFinal) {
 					window.Asc.plugin.executeMethod("PasteHtml",[linebreak(final_transcript)]);
 				}
@@ -262,7 +253,6 @@
 			recognition.lang = $('#custom_menu2 .selecteddd')[0].id;
 			recognition.start();
 			ignore_onend = false;
-			// final_span.innerHTML = '';
 			interim_span.innerHTML = '';
 			start_img.src = 'mic_src/mic-slash.png';
 			showInfo('info_allow');
@@ -385,7 +375,6 @@
 			custom_menu2.style.display = 'none';
 			btn_flag = true;
 		};
-
 		custom_input.onkeydown = function(event) {
 			custom_menu2.style.display = 'none';
 			if (event.keyCode == 38 || event.keyCode == 9)
@@ -550,7 +539,6 @@
 			if (element_input.setSelectionRange) {
 				element_input.focus(); element_input.setSelectionRange(start, end); /* WebKit */
 			} else if (element_input.createTextRange) {
-				/* IE */
 				var range = element_input.createTextRange(); 
 				range.collapse(true);
 				range.moveEnd('character', end);
@@ -586,7 +574,7 @@
 		}
 	};
 
-	function checkInternetExplorer(){
+	function checkInternetExplorer() {
 		var rv = -1;
 		if (window.navigator.appName == 'Microsoft Internet Explorer') {
 			const ua = window.navigator.userAgent;
