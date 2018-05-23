@@ -11,27 +11,27 @@
 		//obj companies data
 		compani_data ={ask:"N/A",askSize:"N/A",averageDailyVolume3Month:"N/A",beta:"N/A",bid:"N/A",bidSize:"N/A",currencySymbol:"N/A",currency:"N/A",dividendRate:"N/A",dividendYield:"N/A",epsTrailingTwelveMonths:"N/A",exchangeName:"N/A",fiftyTwoWeekHigh:"N/A",fiftyTwoWeekLow:"N/A",marketCap:"N/A",regularMarketChange:"N/A",regularMarketChangePercent:"N/A",regularMarketDayHigh:"N/A",regularMarketDayLow:"N/A",regularMarketOpen:"N/A",regularMarketPreviousClose:"N/A",regularMarketPrice:"N/A",regularMarketTime:"N/A",regularMarketVolume:"N/A",shortName:"N/A",symbol:"N/A",targetMeanPrice:"N/A",trailingPE:"N/A"};
 		
-		window.Asc.plugin.init = function(text){	
+		window.Asc.plugin.init = function(text) {	
 			inp_search = document.getElementById("inp_search");
 			btn_search = document.getElementById("btn_search");
-			inp_search.onblur = function(){
+			inp_search.onblur = function() {
 				$('div.data_div').remove();
 				$('div.data_name').remove();
 			};
-			btn_search.onclick = function(){
+			btn_search.onclick = function() {
 				$('div.data_div').remove();
 				$('div.data_name').remove();
 				get_data(inp_search.value);
 				create_preview(compani_data);
-			}
+			};
 	};
 	
-	$(document).ready(function(){
-		$('#inp_search').keyup(function(){
+	$(document).ready(function() {
+		$('#inp_search').keyup(function() {
 			if ((inp_search.value != "") && (predata != inp_search.value)){
 				clearTimeout(timer);
 				timer = setTimeout(get_companies,200,inp_search.value);
-			}else if(inp_search.value == ""){
+			} else if(inp_search.value == "") {
 				$('div.data_div').remove();
 				$('div.data_name').remove();
 				$('#res_select').remove();
@@ -64,10 +64,10 @@
 						data = JSON.parse(data);
 						if (data.items.length>0) {
 							create_variants(data.items);
-						}else{
+						} else {
 							create_not_found();
 						}
-					}else{
+					} else {
 						create_not_found();
 					}	
 				},
@@ -80,12 +80,10 @@
 		catch(z){console.log(z);}
 	};
 
-	function create_variants(companies)
-	{
+	function create_variants(companies) {
 		$('div.data_div').remove();
 		$('div.data_name').remove();
-		for (var i=companies.length-1; i>=0;i--)
-		{
+		for (var i=companies.length-1; i>=0;i--) {
 			$('<div>', {
 				id: 'data_div'+i,
 				class: 'data_div',
@@ -139,7 +137,7 @@
 		}
 	};
 	
-	function create_not_found(){
+	function create_not_found() {
 		$('div.data_name').remove();
 		$('<div>',{
 			class: 'data_name',
@@ -153,7 +151,7 @@
 		}).insertAfter('#input_field');
 	};
 
-	function get_data(req_text){
+	function get_data(req_text) {
 		for (let key in compani_data)
 			compani_data[key] = 'N/A';
 		var pos = req_text.indexOf("^");
@@ -244,13 +242,12 @@
 		compani_data.regularMarketTime = new Date(compani_data.regularMarketTime*1000).toString();
 	};
 
-	function parse_data(data){
+	function parse_data(data) {
 		var new_data ='';
 		for (var key in data)
-			if ( data[key].indexOf('":"') == -1)
-			{
+			if ( data[key].indexOf('":"') == -1) {
 				new_data += ',"' +data[key];
-			}else {
+			} else {
 				new_data += ',"' +data[key].replace(/,/g,' ') +'"';
 			}
 		new_data = new_data.replace(/"{/g,'{');
@@ -262,9 +259,8 @@
 		return new_data;
 	};
 
-	function get_compani_data(data){
-		for (var i in data)
-		{
+	function get_compani_data(data) {
+		for (var i in data){
 			for (var key in data[i])
 				if(compani_data[key] && (JSON.stringify(data[i][key])!='{}'))
 					compani_data[key] = data[i][key]['fmt'] || data[i][key]['raw'] || data[i][key]['longFmt'] || data[i][key];
@@ -274,7 +270,7 @@
 		}
 	};
 
-	function create_preview(data){
+	function create_preview(data) {
 		if(!init_info)
 			init_information();
 		select.innerHTML = "";
@@ -284,7 +280,7 @@
 		label.innerText = data.ask; 
 	};
 
-	function init_information(){
+	function init_information() {
 		init_info = true;
 		select = document.createElement('select');
 		select.id = 'res_select';
@@ -300,21 +296,21 @@
 		button.innerHTML = 'Value';
 		button.onclick = function(){
 			window.Asc.plugin.executeMethod("PasteHtml",[$('#res_label').text()]);
-		}
+		};
 		button_2 = document.createElement('button');
 		button_2.id = 'tab_button';
 		button_2.className = 'btn-text-default';
 		button_2.innerHTML = 'Table';
 		button_2.onclick = function(){
 			window.Asc.plugin.executeMethod("PasteHtml",[create_table(compani_data).outerHTML]);
-		}
+		};
 		document.getElementById('select').appendChild(select);
 		document.getElementById('select').appendChild(button);
 		document.getElementById('select').appendChild(button_2);
 		document.getElementById('info').appendChild(label);
 	};
 
-	function create_table(data){
+	function create_table(data) {
 		var table = document.createElement('table');
 		var row = document.createElement('tr');
 		var cell_1 = document.createElement('th');
@@ -324,8 +320,7 @@
 		row.appendChild(cell_1);
 		row.appendChild(cell_2);
 		table.appendChild(row);
-		for (let key in data)
-		{
+		for (let key in data) {
 			row = document.createElement('tr');
 			cell_1 = document.createElement('td');
 			cell_2 = document.createElement('td');
@@ -336,10 +331,5 @@
 			table.appendChild(row);
 		}
 		return table;
-	};
-
-	window.Asc.plugin.button = function(id)
-	{
-		this.executeCommand("close", "");
 	};
 })(window, undefined);
