@@ -54,12 +54,13 @@
                 return;
 			}
 			var id = _url.slice(_url.indexOf('video/') + 6);
+			id = id.slice(0, id.indexOf('/'));
 
 			if (!isWindowPlayer)
 			{
 				var _table     = document.getElementsByTagName("table")[0];
 				var _row       = _table.insertRow(_table.rows.length);
-				var video = '<iframe id="rutubeFrame" width="100%" height="100%" src="//rutube.ru/play/embed/' + id + '?quality=1&platform=someplatform" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>'
+				var video = '<iframe id="rutubeFrame" width="100%" height="100%" src="http://rutube.ru/play/embed/' + id + '?quality=1&platform=someplatform" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>'
 				_row.innerHTML = "<td colspan=\"2\" style=\"background-color:transparent;height:100%;\"><div id=\"content\" style=\"width:100%;height:100%;\">"+video+"</div></td>";
 				player = RutubeCore( 'rutubeFrame' );
 				content = document.getElementById('content');
