@@ -60,7 +60,7 @@
 			{
 				var _table     = document.getElementsByTagName("table")[0];
 				var _row       = _table.insertRow(_table.rows.length);
-				var video = '<iframe id="rutubeFrame" width="100%" height="100%" src="http://rutube.ru/play/embed/' + id + '?quality=1&platform=someplatform" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>'
+				var video = '<iframe id="rutubeFrame" width="100%" height="100%" src="https://rutube.ru/play/embed/' + id + '?quality=1" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>'
 				_row.innerHTML = "<td colspan=\"2\" style=\"background-color:transparent;height:100%;\"><div id=\"content\" style=\"width:100%;height:100%;\">"+video+"</div></td>";
 				player = RutubeCore( 'rutubeFrame' );
 				content = document.getElementById('content');
@@ -112,6 +112,8 @@
 			var _id = url.slice(url.indexOf('video/') + 6);
 			_id = _id.slice(0, _id.indexOf('/'));
 			var _url = 'http://rutube.ru/api/oembed/?url='+ url +'format=json';
+
+			/*
 			try {
 				$.ajax({
 					type: 'GET',
@@ -125,11 +127,20 @@
 					}
 				});
 			} catch (err) {}
-			
+			*/
 
-			if (_id)
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', _url, true);
+			xhr.responseType = 'json';
+
+			if (xhr.overrideMimeType)
+				xhr.overrideMimeType('text/plain; charset=x-user-defined');
+			else
+				xhr.setRequestHeader('Accept-Charset', 'x-user-defined');
+
+			xhr.onload = function()
 			{
-			    var _info = window.Asc.plugin.info;
+				var _info = window.Asc.plugin.info;
 
                 var _method = (_info.objectId === undefined) ? "asc_addOleObject" : "asc_editOleObject";
 
@@ -140,13 +151,14 @@
                 _info.widthPix = (_info.mmToPx * _info.width) >> 0;
                 _info.heightPix = (_info.mmToPx * _info.height) >> 0;
 
-                _info.imgSrc = _url;
+                _info.imgSrc = "https:" + ((this.response && this.response.thumbnail_url) ? this.response.thumbnail_url : "error");
                 _info.data = url;
 
                 var _code = "Api." + _method + "(" + JSON.stringify(_info) + ");";
-                this.executeCommand("close", _code);
-			}
-			this.executeCommand("close", _code);
+                window.Asc.plugin.executeCommand("close", _code);
+			};
+
+			xhr.send(null);			
 		}
 		else
 		{
