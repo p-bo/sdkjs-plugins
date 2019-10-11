@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Zotero</title>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		<link rel="stylesheet" href="../plugins.css">
+		<link rel="stylesheet" href="plugin_style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+		<script src="../pluginBase.js"></script>	
+		<script src="citeproc-js-simple/src/citeproc.js"></script>
+		<script src="citeproc-js-simple/citeproc-wrapper.js"></script>
+		<script src="code.js"></script>
+		<script src="scrollable_div.js"></script>
+		<link rel="stylesheet" href="select2-4.0.6-rc.1/dist/css/select2.css"/>
+		<script src="select2-4.0.6-rc.1/dist/js/select2.js"></script>
+	</head>
+	<body spellcheck="false" class="noselect">	
+		<div id="loader" class="cssload-container">
+				<div class="cssload-loading"><i></i><i></i><i></i><i></i></div>
+		</div>
+		<table>
+			<tr>
+				<td id="td_left" class="td_left">
+					<div id="url" class="div_url">
+							<input type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;" id="inp_search">
+							<button id="refresh_button" class="refresh"></button>
+						</div>
+					<div id="table_list"></div>
+				</td> 
+				<td id="td_right" class="td_right">
+					<div style="max-height:101%;display: flex;">
+						<div style="flex:0.7">	
+							<select id="select_style" style="width:100%"></select>
+						</div>
+						<div style="flex:0.3">
+							<select id="select_locale" style="width:100%"></select>
+						</div>
+					</div>
+					<div>
+						<div>
+							<label id="label_prewiev" style="margin-top:10px;">Link prewiev</label>
+							<input id="link_prew" type="text" class="form-control" style="width:100%;float:left;flex:1;height:27px;font-size:12px"></input>
+						</div>
+						<div>
+							<label id="bibliography_prew" style="margin-top:10px;">Bibliography prewiev</label>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>	

@@ -1,0 +1,69 @@
+{
+    "name" : "Zotero",
+    "guid" : "asc.{0788E794-718F-4697-BCEC-3E8A0F44570B}",
+
+    "variations" : [
+        {
+            "description" : "Zotero",
+            "url"         : "index.html",
+
+            "icons"           : ["icon.png", "icon@2x.png", "icon.png", "icon@2x.png"],
+            "isViewer"        : true,
+            "EditorsSupport"  : ["word"],
+
+            "isVisual"        : true,
+            "isModal"         : true,
+            "isInsideMode"    : false,
+
+            "initDataType"    : "text",
+            "initData"        : "",
+
+            "isUpdateOleOnResize" : false,
+
+            "buttons"        : [ 
+                { 
+                    "text": "Link",
+                    "primary": true,
+                    "textLocale": {
+                        "ru": "Ссылка",
+                        "fr": "Lien",
+                        "es": "Enlace",
+                        "de": "Referenz"
+                    }
+                },
+                { 
+                    "text": "Bibliography",
+                    "primary": true,
+                    "textLocale": {
+                        "ru": "Биюлиография",
+                        "fr": "Bibliographie",
+                        "es": "Bibliografía",
+                        "de": "Literaturverzeichnis"
+                    }
+                },
+                { 
+                    "text": "Clear local storage",
+                    "primary": true,
+                    "textLocale": {
+                        "ru": "Очистить локальное хранилище",
+                        "fr": "Effacer le stockage local",
+                        "es": "Borrar almacenamiento local",
+                        "de": "Löschen Sie den lokalen Speicher"
+                    }
+                },
+                {
+                    "text": "Cancel",
+                    "primary": false,
+                    "textLocale": {
+                        "ru": "Отмена",
+                        "fr": "Annuler",
+                        "es": "Cancelar",
+                        "de": "Abbrechen"
+                    }
+                }
+            ],
+
+            "initOnSelectionChanged" : true
+        }
+    ]
+}
