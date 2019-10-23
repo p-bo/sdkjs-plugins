@@ -20,10 +20,48 @@
 
             "isUpdateOleOnResize" : false,
 
-            "buttons"        : [ { "text": "Link", "primary": true },
-                                 { "text": "Bibliography", "primary": true },
-                                 { "text": "Logout", "primary": true },
-                                 { "text": "Cancel", "primary": false } ],
+            "buttons"        : [ 
+                { 
+                    "text": "Link",
+                    "primary": true,
+                    "textLocale": {
+                        "ru": "Ссылка",
+                        "fr": "Lien",
+                        "es": "Enlace",
+                        "de": "Referenz"
+                    }
+                },
+                { 
+                    "text": "Bibliography",
+                    "primary": true,
+                    "textLocale": {
+                        "ru": "Биюлиография",
+                        "fr": "Bibliographie",
+                        "es": "Bibliografía",
+                        "de": "Literaturverzeichnis"
+                    }
+                },
+                { 
+                    "text": "Logout", 
+                    "primary": true,
+                    "textLocale": {
+                        "ru": "Выйти",
+                        "fr": "Se déconnecter",
+                        "es": "Cerrar sesión",
+                        "de": "Ausloggen"
+                    }
+                },          
+                {
+                    "text": "Cancel",
+                    "primary": false,
+                    "textLocale": {
+                        "ru": "Отмена",
+                        "fr": "Annuler",
+                        "es": "Cancelar",
+                        "de": "Abbrechen"
+                    }
+                } 
+            ],
 
             "initOnSelectionChanged" : true
         }

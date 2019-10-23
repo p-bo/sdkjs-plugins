@@ -140,9 +140,7 @@ You can apply your classes to this divs
 		},
 
 		initialize: function() {
-			Ps.initialize(container, {
-				theme : 'custom-theme'
-			});
+			Ps = new PerfectScrollbar('#' + container.id);
 		},
 
 		addEventListener: function() {

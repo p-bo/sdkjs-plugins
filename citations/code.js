@@ -91,18 +91,22 @@
 				var val = $(elem + " option:selected").val();
 				loadSelected(val);
 				if (val.indexOf('.xml') !== -1) {
-					locale.preferredLocale = val;
+					locale.preferredLocale = val.substr(0, val.length-4);
 				} else {
-					selectedStyle.name = val;
+					selectedStyle.name = val.substr(0, val.length-4);
 				}
 			} else {
 				if (elem == '#select_locale' && locale.preferredLocale) {
-					$(elem).val(locale.preferredLocale + '.xml');
-					$(elem).trigger('change');
+					if (locale.preferredLocale !== res[0].text) {
+						$(elem).val(locale.preferredLocale + '.xml');
+						$(elem).trigger('change');
+					}
 				} else if (elem == '#select_style' && selectedStyle.name) {
-					$(elem).val(selectedStyle.name + '.csl');
-					$(elem).trigger('change');
-					flagRestore = false;
+					if (selectedStyle.name !== res[0].text) {
+						$(elem).val(selectedStyle.name + '.csl');
+						$(elem).trigger('change');
+						flagRestore = false;
+					}
 				}
 			}
 		});
@@ -127,8 +131,22 @@
 	};
 
 	function auth() {
+		/*
+			You can reed about authorization https://dev.mendeley.com/reference/topics/authorization_auth_code.html
+			Befour using this plugin, you need register your application in https://dev.mendeley.com/myapps.html
+			To register, you must specify the following parameters:
+				1) Application name
+				2) Description
+				3) Redirect URL (should point to the address of your page + address, by which index2.html is located in the folder of this plugin)
+					For example: https://address_of_your_page/sdkjs-plugins/citations/index2.html
+			After registering your application, you will be given an ID, which will need to be specified in the "clientId" field
+			These parameters must also be specified in the code2.js file in the same directory
+		*/
+		// For example, here are my settings for a locally working document server
 		const SETTINGS = {
-			clientId: 5468,
+			// The value for application ID you received when registering your application. You can check the ID of your application using the My Applications page in the Mendeley Developer Portal.
+			clientId: 7452,
+			// The URL value for Redirection URL you set when registering your application. You can check or change the redirection URL of your application using the My Applications page in the Mendeley Developer Portal. Remember to URL encode this value.
 			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citations/index2.html'
 		};
 		implicitGrantFlow = MendeleySDK.Auth.implicitGrantFlow(SETTINGS);
@@ -403,8 +421,7 @@
 		}
 	};
 
-	window.Asc.plugin.button = function(id)
-	{
+	window.Asc.plugin.button = function(id) {
 		if (id == 2) {
 			localStorage.removeItem("Citate_State");
 			restoreState();
@@ -418,6 +435,15 @@
 		} else {
 			alert('First you need to log in to Mendeley');
 		}
+	};
+
+	window.Asc.plugin.onTranslate = function() {
+		var label_prewiev = document.getElementById("label_prewiev");
+		if (label_prewiev)
+			label_prewiev.innerHTML = window.Asc.plugin.tr("Link prewiev");
+		var bibliography_prew = document.getElementById("bibliography_prew");
+		if (bibliography_prew)
+			bibliography_prew.innerHTML = window.Asc.plugin.tr("Bibliography prewiev");
 	};
 
 })(window, undefined);
