@@ -10,16 +10,31 @@
 		bibliography,									//array bibliography
 		flagRestore = false,							//flag for restore state
 		arrSelected = [],								//array selected items in library
-		state;											//current state
+		state = {},										//current state
+		token,											//token mendeley auth
+		fSelectItem = false;							//flag click on item in library
 		
-	window.Asc.plugin.init = function () {	
+
+	function onMessage (e) {
+		var message = JSON.parse(e.data);
+		if (message.MendeleyToken) {
+			token = message.MendeleyToken;
+			getData("library");
+		}
+	};
+
+	window.Asc.plugin.init = function () {
+		if (window.attachEvent)
+			window.attachEvent('onmessage', onMessage);
+		else
+			window.addEventListener('message', onMessage, false);
 		loadStylesAndLocales('citeproc-js-simple/locales/locales.json', '#select_locale');
 		loadStylesAndLocales('citeproc-js-simple/styles/styles.json', '#select_style');
 		var ref_but = document.getElementById('refresh_button');
 		ref_but.onclick = function() {
 			document.getElementById('loader').style.display ='block';
 			document.getElementById('loader').style.position = 'absolute';
-			auth();
+			getData("library");
 		};
 		var inpSearch = document.getElementById('inp_search');
 		inpSearch.oninput = function(e) {
@@ -37,7 +52,7 @@
 				top: "53px",
 				bottom: "16px"
 			});
-			myscroll.create_div("bibliography_prew",{
+			myscroll.create_div("bibliography_prev",{
 				maxWidth: "",
 				maxWidth: "",
 				width: "",
@@ -53,7 +68,7 @@
 			conteiner_2 = document.getElementById('conteiner_id2');
 			is_init = true;
 		}
-		window.Asc.plugin.resizeWindow(800, 600, 800, 600, 0, 0);				//resize plugin window		
+		window.Asc.plugin.resizeWindow(800, 600, 800, 600, 0, 0);	//resize plugin window		
 		window.onresize = function() {
 			if (!is_init) return;
 			myscroll.updateScroll(conteiner);
@@ -62,7 +77,9 @@
 			myscroll.updateScroll(conteiner_2);
 		};
 		restoreState();
-		auth();
+		if (!flagRestore) {
+			auth();
+		}
 	};
 
 	function loadStylesAndLocales(dir,elem) {
@@ -130,7 +147,26 @@
 		}
 	};
 
+	function getData(data) {
+		if (!token)
+			auth();
+		var url = (data == "library") ? 'https://api.mendeley.com/documents/?view=client&sort=created&order=desc&limit=500' : 'https://api.mendeley.com/documents/'+data+'?view=all';
+		$.ajax({
+			method: 'GET',
+			beforeSend: function(request) {
+				request.setRequestHeader("Authorization", 'Bearer ' + token);
+			},
+			url: url
+		}).success(function (oResponse) {
+			sucsess(oResponse)
+		}).error(function(e){       
+			failed(e);
+		});		
+	};
+
 	function auth() {
+		document.getElementById('loader').style.display ='block';
+		document.getElementById('loader').style.position = 'absolute';
 		/*
 			You can reed about authorization https://dev.mendeley.com/reference/topics/authorization_auth_code.html
 			Befour using this plugin, you need register your application in https://dev.mendeley.com/myapps.html
@@ -140,41 +176,65 @@
 				3) Redirect URL (should point to the address of your page + address, by which index2.html is located in the folder of this plugin)
 					For example: https://address_of_your_page/sdkjs-plugins/citations/index2.html
 			After registering your application, you will be given an ID, which will need to be specified in the "clientId" field
-			These parameters must also be specified in the code2.js file in the same directory
 		*/
 		// For example, here are my settings for a locally working document server
-		const SETTINGS = {
-			// The value for application ID you received when registering your application. You can check the ID of your application using the My Applications page in the Mendeley Developer Portal.
-			clientId: 7452,
-			// The URL value for Redirection URL you set when registering your application. You can check or change the redirection URL of your application using the My Applications page in the Mendeley Developer Portal. Remember to URL encode this value.
-			redirectUrl: 'http://127.0.0.1:8001/sdkjs-plugins/citations/index2.html'
-		};
-		implicitGrantFlow = MendeleySDK.Auth.implicitGrantFlow(SETTINGS);
-		// implicitGrantFlow.authenticate();			//force autentification
-		// var token = implicitGrantFlow.getToken();	//get token
-		MendeleySDK.API.setAuthFlow(implicitGrantFlow);		//set auth flow
-		// MendeleySDK.API.profiles.me().then(sucsess,failed);	//get user accaunt info
-		if (!flagRestore) {
-			MendeleySDK.API.documents.retrieve("?view=client&sort=created&order=desc&limit=500").then(sucsess,failed);
-		}
+		// The value for application ID you received when registering your application. You can check the ID of your application using the My Applications page in the Mendeley Developer Portal.
+		var client_id = 7452;
+		// The URL value for Redirection URL you set when registering your application. You can check or change the redirection URL of your application using the My Applications page in the Mendeley Developer Portal. Remember to URL encode this value.
+		var redirect_uri = 'http://127.0.0.1:8001/sdkjs-plugins/citations/index2.html';
+		// state = Date.now();
+		var _url = 'https://api.mendeley.com/oauth/authorize?';
+		_url += 'client_id=' + client_id;
+		_url +='&redirect_uri=' + encodeURIComponent(redirect_uri);
+		_url += '&response_type=token&scope=all'
+		// _url += '&state=' + state;
+
+		var dualScreenLeft = (window.screenLeft != undefined) ? window.screenLeft : screen.left;
+		var dualScreenTop = (window.screenTop != undefined) ? window.screenTop : screen.top;
+
+		var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+		var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+		var w = 800;
+		var h = 600;
+		var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+		var top = ((height / 2) - (h / 2)) + dualScreenTop;
+		var _windowPos = "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top;
+
+		window.open(_url, "_blank", "resizable=yes,status=0,toolbar=0,location=0,menubar=0,directories=0,scrollbars=0," + _windowPos);
 	};
 
 	function sucsess(result) {
-		// if (result.id) MendeleySDK.API.documents.retrieve(`?view=client&sort=created&order=desc&limit=500`).then(sucsess,failed); // require user library
-		//MendeleySDK.API.documents.retrieve(`984e8e01-0fc0-3405-ae36-a17833c9286c?view=all`).then(sucsess,failed);  	//require iformations about document
-		//MendeleySDK.API.documents.retrieve(`?limit=500&uuid=${result.id}`).then(sucsess,failed);	// another metod to require user library
 		if (result && result.length > 0) {
 			library = result;
 			pasteData();
-			document.getElementById('loader').style.display ='none';
 		} else if (typeof result === 'object') {
+			fSelectItem = false;
 			createCitate(result);
 		}
+		document.getElementById('loader').style.display ='none';
 	};
 
 	function failed(error) {
-		console.info(error);
+		console.info(error.responseJSON);
 		document.getElementById('loader').style.display ='none';
+		if (fSelectItem) {
+			removeLastSelect();
+		}
+		if (error.status == 401 || error.status == 400) {
+			auth();
+		}
+	};
+	
+	function removeLastSelect() {
+		var id = arrSelected.pop();
+		for (var i in library) {
+			if (library[i].title === id) {
+				id = library[i].id;
+				break;
+			}
+		}
+		$("#"+id).removeClass("selected");
 	};
 
 	function pasteData(value) {
@@ -247,27 +307,33 @@
 			$('<label>', {
 				class: 'item_list',
 				text: data[i].title,
+				id: data[i].id,
 				on: {
 					click: function(){
-						$(this).toggleClass("selected");
-						if ($(this).hasClass("selected")) {
-							for (key in library) {
-								if (this.innerText === library[key].title) {
-									MendeleySDK.API.documents.retrieve(library[key].id + "?view=all").then(sucsess,failed);
+						if (token) {
+							$(this).toggleClass("selected");
+							if ($(this).hasClass("selected")) {
+								for (key in library) {
+									if (this.innerText === library[key].title) {
+										getData(library[key].id);
+										fSelectItem = true;
+									}
 								}
+								arrSelected.push(this.innerHTML);
+							} else {
+								for (key in citations) {
+									if (citations[key].title === this.innerText) {
+										delete citations[key];
+										createPreview(citations);
+									}
+								}
+								var val = this.innerHTML;
+								arrSelected = arrSelected.filter(function(item) {
+									return val != item;
+								});
 							}
-							arrSelected.push(this.innerHTML);
 						} else {
-							for (key in citations) {
-								if (citations[key].title === this.innerText) {
-									delete citations[key];
-									createPreview(citations);
-								}
-							}
-							var val = this.innerHTML;
-							arrSelected = arrSelected.filter(function(item) {
-								return val != item;
-							});
+							auth();
 						}
 					},
 					mouseover: function(){
@@ -350,7 +416,7 @@
 			var cluster = citeproc.makeCitationCluster(arrayCitations);		
 			conteiner_2.innerHTML = cluster;
 			cluster = $(conteiner_2).text();
-			document.getElementById('link_prew').value = cluster.replace(/&#38;/g,'&');	
+			document.getElementById('link_prev').value = cluster.replace(/&#38;/g,'&');	
 			if (!flagRestore) {			
 				bibliography = citeproc.makeBibliography();
 			} else {
@@ -379,29 +445,32 @@
 			selectedStyle: selectedStyle,
 			locale: locale,
 			arrSelected: arrSelected,
-			bibliography: bibliography
+			bibliography: bibliography,
+			token: token
 		};
 		localStorage.setItem('Citate_State', JSON.stringify(state));
 	};
 
 	function restoreState() {
-		state = localStorage.getItem('Citate_State');
+		state = JSON.parse(localStorage.getItem('Citate_State'));
 		if (state && state !== {}) {
-			state = JSON.parse(localStorage.getItem('Citate_State'));
 			flagRestore = true;
 			citations = state.citations;
 			library = state.library;
 			selectedStyle = state.selectedStyle;
 			locale = state.locale;
 			arrSelected = state.arrSelected;
+			token = state.token;
 			createPreview(citations);
 			renderLibrary(library);
 		} else {
 			state = {};
+			library = {};
 			arrSelected = [];
 			citations = {};
 			bibliography = [];
-			document.getElementById('link_prew').value = '';
+			token = '';
+			document.getElementById('link_prev').value = '';
 			conteiner_2.innerHTML = '';
 			conteiner.innerHTML = '';
 		}
@@ -410,7 +479,7 @@
 	function pasteInDocument(id) {
 		var value;
 		if (id == 0) {
-			value = document.getElementById('link_prew').value;
+			value = document.getElementById('link_prev').value;
 			window.Asc.plugin.executeMethod("PasteHtml",[value]);
 		} else if (id == 1) {
 			value = conteiner_2.innerHTML.replace(/\t/g,"<span style='mso-tab-count:1'></span>").split('\n');
@@ -422,28 +491,28 @@
 	};
 
 	window.Asc.plugin.button = function(id) {
-		if (id == 2) {
-			localStorage.removeItem("Citate_State");
-			restoreState();
-			implicitGrantFlow.authenticate();
-		} else if ($("#auth_frame")[0].style.display == 'none' || $("#auth_frame")[0].style.display == '') {
+		if (id == 0 || id == 1) {
 			saveState();
 			pasteInDocument(id);
 			this.executeCommand("close", "");
-		} else if (id == 3 || id == -1){
-			this.executeCommand("close", "");			
+		} else if (id == 2) {
+			localStorage.removeItem("Citate_State");
+			restoreState();
+			flagRestore = false;
+			auth();
 		} else {
-			alert('First you need to log in to Mendeley');
+			saveState();
+			this.executeCommand("close", "");
 		}
 	};
 
 	window.Asc.plugin.onTranslate = function() {
-		var label_prewiev = document.getElementById("label_prewiev");
-		if (label_prewiev)
-			label_prewiev.innerHTML = window.Asc.plugin.tr("Link prewiev");
-		var bibliography_prew = document.getElementById("bibliography_prew");
-		if (bibliography_prew)
-			bibliography_prew.innerHTML = window.Asc.plugin.tr("Bibliography prewiev");
+		var label_preview = document.getElementById("label_preview");
+		if (label_preview)
+			label_preview.innerHTML = window.Asc.plugin.tr("Link preview");
+		var bibliography_prev = document.getElementById("bibliography_prev");
+		if (bibliography_prev)
+			bibliography_prev.innerHTML = window.Asc.plugin.tr("Bibliography preview");
 	};
 
 })(window, undefined);

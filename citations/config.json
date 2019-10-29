@@ -1,10 +1,22 @@
 {
     "name" : "Citations",
+    "nameLocale": {
+        "ru": "Цитаты",
+        "fr": "Citations",
+        "es": "Citas",
+        "de": "Zitate"
+    },
     "guid" : "asc.{BE5CBF95-C0AD-4842-B157-AC40FEDD9441}",
 
     "variations" : [
         {
             "description" : "Citations",
+            "descriptionLocale": {
+                "ru": "Цитаты",
+                "fr": "Citations",
+                "es": "Citas",
+                "de": "Zitate"
+            },
             "url"         : "index.html",
 
             "icons"           : ["icon.png", "icon@2x.png", "icon.png", "icon@2x.png"],
