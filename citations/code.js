@@ -480,7 +480,7 @@
 		var value;
 		if (id == 0) {
 			value = document.getElementById('link_prev').value;
-			window.Asc.plugin.executeMethod("PasteHtml",[value]);
+			window.Asc.plugin.executeMethod("PasteText",[value]);
 		} else if (id == 1) {
 			value = conteiner_2.innerHTML.replace(/\t/g,"<span style='mso-tab-count:1'></span>").split('\n');
 			for (key in value) {
