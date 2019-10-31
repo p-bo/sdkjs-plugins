@@ -7,17 +7,20 @@
 		selectedStyle = {name: '', value: ''},			//selected style
 		locale = {preferredLocale: '', locale: ''},		//selected locale
 		citations = {},									//obj citations
-		bibliography,									//array bibliography
+		bibliography = [],								//array bibliography
 		flagRestore = false,							//flag for restore state
 		arrSelected = [],								//array selected items in library
 		state = {},										//current state
 		token,											//token mendeley auth
+		winAuth,										//window for authorization
+		timer											//timer for check winAuth
 		fSelectItem = false;							//flag click on item in library
 		
 
 	function onMessage (e) {
 		var message = JSON.parse(e.data);
 		if (message.MendeleyToken) {
+			clearInterval(timer);
 			token = message.MendeleyToken;
 			getData("library");
 		}
@@ -77,7 +80,7 @@
 			myscroll.updateScroll(conteiner_2);
 		};
 		restoreState();
-		if (!flagRestore) {
+		if (!flagRestore || !token) {
 			auth();
 		}
 	};
@@ -148,20 +151,22 @@
 	};
 
 	function getData(data) {
-		if (!token)
+		if (!token) {
 			auth();
-		var url = (data == "library") ? 'https://api.mendeley.com/documents/?view=client&sort=created&order=desc&limit=500' : 'https://api.mendeley.com/documents/'+data+'?view=all';
-		$.ajax({
-			method: 'GET',
-			beforeSend: function(request) {
-				request.setRequestHeader("Authorization", 'Bearer ' + token);
-			},
-			url: url
-		}).success(function (oResponse) {
-			sucsess(oResponse)
-		}).error(function(e){       
-			failed(e);
-		});		
+		} else {
+			var url = (data == "library") ? 'https://api.mendeley.com/documents/?view=client&sort=created&order=desc&limit=500' : 'https://api.mendeley.com/documents/'+data+'?view=all';
+			$.ajax({
+				method: 'GET',
+				beforeSend: function(request) {
+					request.setRequestHeader("Authorization", 'Bearer ' + token);
+				},
+				url: url
+			}).success(function (oResponse) {
+				sucsess(oResponse)
+			}).error(function(e){       
+				failed(e);
+			});
+		}
 	};
 
 	function auth() {
@@ -179,7 +184,8 @@
 		*/
 		// For example, here are my settings for a locally working document server
 		// The value for application ID you received when registering your application. You can check the ID of your application using the My Applications page in the Mendeley Developer Portal.
-		var client_id = 7452;
+		// var client_id = 7452;
+		var client_id = 7525;
 		// The URL value for Redirection URL you set when registering your application. You can check or change the redirection URL of your application using the My Applications page in the Mendeley Developer Portal. Remember to URL encode this value.
 		var redirect_uri = 'http://127.0.0.1:8001/sdkjs-plugins/citations/index2.html';
 		// state = Date.now();
@@ -201,14 +207,21 @@
 		var top = ((height / 2) - (h / 2)) + dualScreenTop;
 		var _windowPos = "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top;
 
-		window.open(_url, "_blank", "resizable=yes,status=0,toolbar=0,location=0,menubar=0,directories=0,scrollbars=0," + _windowPos);
+		winAuth =  window.open(_url, "_blank", "resizable=yes,status=0,toolbar=0,location=0,menubar=0,directories=0,scrollbars=0," + _windowPos);
+		timer = setInterval(function() {
+			if(winAuth.closed) {
+				clearInterval(timer);
+				document.getElementById('loader').style.display ='none';
+				console.warn("Use refresh button or logout for authorization in mendeley");
+			}
+		}, 1500);
 	};
 
 	function sucsess(result) {
-		if (result && result.length > 0) {
+		if (result && result.length >= 0 && !fSelectItem) {
 			library = result;
 			pasteData();
-		} else if (typeof result === 'object') {
+		} else if (typeof result === 'object' && fSelectItem) {
 			fSelectItem = false;
 			createCitate(result);
 		}
@@ -216,13 +229,14 @@
 	};
 
 	function failed(error) {
-		console.info(error.responseJSON);
 		document.getElementById('loader').style.display ='none';
 		if (fSelectItem) {
 			removeLastSelect();
 		}
 		if (error.status == 401 || error.status == 400) {
 			auth();
+		} else {
+			console.info(error.responseJSON);
 		}
 	};
 	
@@ -238,7 +252,7 @@
 	};
 
 	function pasteData(value) {
-		if (JSON.stringify(library) !== '{}') {
+		if (JSON.stringify(library) !== '[]') {
 			if (value || value === '')
 			{
 				var found = filter(library, value);
@@ -315,8 +329,9 @@
 							if ($(this).hasClass("selected")) {
 								for (key in library) {
 									if (this.innerText === library[key].title) {
-										getData(library[key].id);
 										fSelectItem = true;
+										flagRestore = false;
+										getData(library[key].id);
 									}
 								}
 								arrSelected.push(this.innerHTML);
@@ -461,8 +476,10 @@
 			locale = state.locale;
 			arrSelected = state.arrSelected;
 			token = state.token;
-			createPreview(citations);
-			renderLibrary(library);
+			if(JSON.stringify(citations) !== '{}')
+				createPreview(citations);
+			// renderLibrary(library);
+			pasteData();
 		} else {
 			state = {};
 			library = {};
